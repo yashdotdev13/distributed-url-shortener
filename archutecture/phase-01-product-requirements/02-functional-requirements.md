@@ -31,7 +31,8 @@ An unauthenticated user who can access public shortened URLs.
 
 ---
 
-## Authenticated User
+## Authenticated User 
+
 
 A registered user who manages URLs.
 
