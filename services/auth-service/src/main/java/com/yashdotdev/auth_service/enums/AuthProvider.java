@@ -2,7 +2,7 @@ package com.yashdotdev.auth_service.enums;
 
 public enum AuthProvider {
 
-    LOCALE,
+    LOCAL,
     GOOGLE,
     GITHUB,
     MICROSOFT
