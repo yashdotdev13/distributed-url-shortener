@@ -22,22 +22,7 @@
 
 
     <modules>
-
-<!--        <module>common-lib</module>-->
-
-<!--        <module>api-gateway</module>-->
-
-<!--        <module>auth-service</module>-->
-
-<!--        <module>url-service</module>-->
-
-<!--        <module>redirect-service</module>-->
-
-<!--        <module>analytics-service</module>-->
-
-<!--        <module>notification-service</module>-->
-<!--        <module>geo-service</module>-->
-
+        <module>services/common-lib</module>
     </modules>
 
 
