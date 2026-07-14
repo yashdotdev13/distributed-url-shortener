@@ -23,6 +23,7 @@
 
     <modules>
         <module>services/common-lib</module>
+        <module>services/discovery-server</module>
     </modules>
 
 
