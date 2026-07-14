@@ -39,7 +39,7 @@ A registered user who manages URLs.
 ---
 
 ## Administrator
-
+  
 Responsible for platform administration.
 
 ---
