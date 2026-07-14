@@ -24,6 +24,7 @@
     <modules>
         <module>services/common-lib</module>
         <module>services/discovery-server</module>
+        <module>services/auth-service</module>
     </modules>
 
 
