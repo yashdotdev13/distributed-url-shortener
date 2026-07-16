@@ -1,6 +1,7 @@
 package com.yashdotdev.auth_service.service;
 
 import com.yashdotdev.auth_service.dtos.request.LoginRequest;
+import com.yashdotdev.auth_service.dtos.request.RefreshTokenRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
 import com.yashdotdev.auth_service.dtos.response.TokenResponse;
@@ -10,6 +11,7 @@ import com.yashdotdev.auth_service.enums.AccountStatus;
 import com.yashdotdev.auth_service.enums.AuthProvider;
 import com.yashdotdev.auth_service.enums.Role;
 import com.yashdotdev.auth_service.exceptions.InvalidCredentialsException;
+import com.yashdotdev.auth_service.exceptions.InvalidTokenException;
 import com.yashdotdev.auth_service.exceptions.UserAlreadyExistsException;
 import com.yashdotdev.auth_service.mapper.UserMapper;
 import com.yashdotdev.auth_service.repository.RefreshTokenRepository;
@@ -125,6 +127,49 @@ public class AuthService {
     }
 
 
+    @Transactional
+    public TokenResponse refreshToken(RefreshTokenRequest request) {
+
+        RefreshToken storedToken = refreshTokenRepository
+                        .findByTokenAndRevokedFalse(
+                                request.getRefreshToken()
+                        )
+                        .orElseThrow(() ->
+                                new InvalidTokenException(
+                                        "Invalid refresh token."
+                                )
+                        );
+
+        if (jwtService.isTokenExpired(storedToken.getToken())) {
+
+            storedToken.setRevoked(true);
+            refreshTokenRepository.save(storedToken);
+
+            throw new InvalidTokenException(
+                    "Refresh token expired."
+            );
+
+        }
+
+        User user = storedToken.getUser();
+
+        CustomUserDetails userDetails =
+                new CustomUserDetails(user);
+
+        TokenResponse tokenResponse =
+                jwtService.generateTokens(userDetails);
+
+        storedToken.setRevoked(true);
+        refreshTokenRepository.save(storedToken);
+        saveRefreshToken(
+                user,
+                tokenResponse.getRefreshToken()
+        );
+
+        return tokenResponse;
+
+    }
+
     private void saveRefreshToken(User user, String token) {
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -137,4 +182,6 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
 
     }
+
+
 }

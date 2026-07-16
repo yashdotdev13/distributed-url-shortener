@@ -1,8 +1,10 @@
 package com.yashdotdev.auth_service.controller;
 
 import com.yashdotdev.auth_service.dtos.request.LoginRequest;
+import com.yashdotdev.auth_service.dtos.request.RefreshTokenRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
+import com.yashdotdev.auth_service.dtos.response.TokenResponse;
 import com.yashdotdev.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,4 +40,19 @@ public class AuthController {
         return ResponseEntity.ok(response);
 
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refreshToken(
+            @Valid
+            @RequestBody
+            RefreshTokenRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                authService.refreshToken(request)
+        );
+
+    }
+
+
 }
