@@ -18,7 +18,7 @@ public class RegisterRequest {
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 30)
     @Pattern(
-            regexp = "^[a-zA-Z0-9_]+$ ",
+            regexp = "^[a-zA-Z0-9_]+$",
             message = "Username can contain only letters, numbers and underscores"
     )
     private String username;
