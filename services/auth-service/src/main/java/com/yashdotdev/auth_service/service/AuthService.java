@@ -3,6 +3,8 @@ package com.yashdotdev.auth_service.service;
 import com.yashdotdev.auth_service.dtos.request.LoginRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
+import com.yashdotdev.auth_service.dtos.response.TokenResponse;
+import com.yashdotdev.auth_service.entity.RefreshToken;
 import com.yashdotdev.auth_service.entity.User;
 import com.yashdotdev.auth_service.enums.AccountStatus;
 import com.yashdotdev.auth_service.enums.AuthProvider;
@@ -10,6 +12,7 @@ import com.yashdotdev.auth_service.enums.Role;
 import com.yashdotdev.auth_service.exceptions.InvalidCredentialsException;
 import com.yashdotdev.auth_service.exceptions.UserAlreadyExistsException;
 import com.yashdotdev.auth_service.mapper.UserMapper;
+import com.yashdotdev.auth_service.repository.RefreshTokenRepository;
 import com.yashdotdev.auth_service.repository.UserRepository;
 import com.yashdotdev.auth_service.security.CustomUserDetails;
 import com.yashdotdev.auth_service.security.JwtService;
@@ -33,6 +36,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Transactional
@@ -52,9 +56,17 @@ public class AuthService {
         CustomUserDetails userDetails =
                 new CustomUserDetails(savedUser);
 
+        TokenResponse tokenResponse =
+                jwtService.generateTokens(userDetails);
+
+        saveRefreshToken(
+                savedUser,
+                tokenResponse.getRefreshToken()
+        );
+
         return AuthResponse.builder()
                 .user(userMapper.toResponse(savedUser))
-                .token(jwtService.generateTokens(userDetails))
+                .token(tokenResponse)
                 .build();
 
     }
@@ -74,6 +86,14 @@ public class AuthService {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
             User user = userDetails.getUser();
+
+            TokenResponse tokenResponse =
+                    jwtService.generateTokens(userDetails);
+
+            saveRefreshToken(
+                    user,
+                    tokenResponse.getRefreshToken()
+            );
 
             return AuthResponse.builder()
                     .user(userMapper.toResponse(user))
@@ -101,6 +121,20 @@ public class AuthService {
             );
 
         }
+
+    }
+
+
+    private void saveRefreshToken(User user, String token) {
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .token(token)
+                .user(user)
+                .expiresAt(jwtService.getRefreshTokenExpiry())
+                .revoked(false)
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
 
     }
 }
