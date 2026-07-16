@@ -1,6 +1,7 @@
 package com.yashdotdev.auth_service.security;
 
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,45 +33,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        // No Authorization Header
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
+        try {
 
-        final String username = jwtService.extractUsername(jwt);
+            final String jwt = authHeader.substring(7);
 
-        // Username not found inside token
-        if (username == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+            final String username = jwtService.extractUsername(jwt);
 
-        // User already authenticated
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+                if (jwtService.isTokenValid(jwt, userDetails)) {
 
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authenticationToken);
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authentication);
+                }
             }
+
+        } catch (JwtException | IllegalArgumentException ex) {
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+
+            response.getWriter().write("""
+                {
+                    "success": false,
+                    "message": "Invalid or expired JWT."
+                }
+                """);
+
+            return;
         }
 
         filterChain.doFilter(request, response);

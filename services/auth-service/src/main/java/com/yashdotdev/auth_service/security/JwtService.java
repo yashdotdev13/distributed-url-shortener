@@ -32,7 +32,27 @@ public class JwtService {
 
 
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, accessTokenExpiration);
+
+        Map<String, Object> claims = new HashMap<>();
+
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+
+            claims.put("userId", customUserDetails.getUser().getId());
+
+            claims.put(
+                    "roles",
+                    customUserDetails.getAuthorities()
+                            .stream()
+                            .map(authority -> authority.getAuthority())
+                            .toList()
+            );
+        }
+
+        return generateToken(
+                claims,
+                userDetails,
+                accessTokenExpiration
+        );
     }
 
 
@@ -128,6 +148,25 @@ public class JwtService {
     public Instant getRefreshTokenExpiry() {
         return Instant.now()
                 .plusMillis(refreshTokenExpiration);
+
+    }
+
+
+    public Long extractUserId(String token) {
+
+        return extractClaim(
+                token,
+                claims -> claims.get("userId", Long.class)
+        );
+
+    }
+
+    public java.util.List<String> extractRoles(String token) {
+
+        return extractClaim(
+                token,
+                claims -> claims.get("roles", java.util.List.class)
+        );
 
     }
 }
