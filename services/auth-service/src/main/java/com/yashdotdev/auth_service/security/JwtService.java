@@ -1,5 +1,7 @@
 package com.yashdotdev.auth_service.security;
 
+
+import com.yashdotdev.auth_service.dtos.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -27,16 +29,28 @@ public class JwtService {
     private long refreshTokenExpiration;
 
 
+
     public String generateAccessToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails, accessTokenExpiration);
-
     }
 
 
     public String generateRefreshToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails, refreshTokenExpiration);
-
     }
+
+
+    public TokenResponse generateTokens(UserDetails userDetails) {
+
+        return TokenResponse.builder()
+                .accessToken(generateAccessToken(userDetails))
+                .refreshToken(generateRefreshToken(userDetails))
+                .tokenType("Bearer")
+                .expiresIn(accessTokenExpiration / 1000)
+                .build();
+    }
+
+
 
     private String generateToken(
             Map<String, Object> extraClaims,
@@ -51,14 +65,13 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
-
     }
 
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
-
     }
+
 
 
     public <T> T extractClaim(
@@ -67,49 +80,47 @@ public class JwtService {
     ) {
 
         Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
 
+        return claimsResolver.apply(claims);
     }
 
 
     private Claims extractAllClaims(String token) {
+
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
     }
-
 
     public boolean isTokenValid(
             String token,
             UserDetails userDetails
     ) {
 
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername())
+        return extractUsername(token).equals(userDetails.getUsername())
                 && !isTokenExpired(token);
-
     }
 
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
 
+        return extractExpiration(token).before(new Date());
     }
 
-
     private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
 
+        return extractClaim(token, Claims::getExpiration);
     }
 
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
 
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+
+        return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
 }

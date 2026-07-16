@@ -1,15 +1,13 @@
 package com.yashdotdev.auth_service.dtos.response;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TokenResponse {
 
     private String accessToken;
@@ -18,5 +16,5 @@ public class TokenResponse {
 
     private String tokenType;
 
-    private Long expiresId;
+    private Long expiresIn;
 }
