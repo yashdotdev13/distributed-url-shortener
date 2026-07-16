@@ -1,10 +1,12 @@
 package com.yashdotdev.auth_service.config;
 
 
+import com.yashdotdev.auth_service.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -19,6 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomUserDetailsService userDetailsService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
@@ -28,6 +32,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .cors(Customizer.withDefaults())
+                .formLogin(form -> form.disable())
+
+                .httpBasic(httpBasic -> httpBasic.disable())
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -65,6 +72,18 @@ public class SecurityConfig {
 
         return configuration.getAuthenticationManager();
 
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider();
+
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 
 }
