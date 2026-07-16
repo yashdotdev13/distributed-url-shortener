@@ -6,6 +6,7 @@ import com.yashdotdev.auth_service.dtos.request.RefreshTokenRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
 import com.yashdotdev.auth_service.dtos.response.TokenResponse;
+import com.yashdotdev.auth_service.dtos.response.UserResponse;
 import com.yashdotdev.auth_service.entity.RefreshToken;
 import com.yashdotdev.auth_service.entity.User;
 import com.yashdotdev.auth_service.enums.AccountStatus;
@@ -14,6 +15,7 @@ import com.yashdotdev.auth_service.enums.Role;
 import com.yashdotdev.auth_service.exceptions.InvalidCredentialsException;
 import com.yashdotdev.auth_service.exceptions.InvalidTokenException;
 import com.yashdotdev.auth_service.exceptions.UserAlreadyExistsException;
+import com.yashdotdev.auth_service.exceptions.UserNotFoundException;
 import com.yashdotdev.auth_service.mapper.UserMapper;
 import com.yashdotdev.auth_service.repository.RefreshTokenRepository;
 import com.yashdotdev.auth_service.repository.UserRepository;
@@ -203,6 +205,18 @@ public class AuthService {
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
 
+    }
+
+
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found.")
+                );
+
+        return userMapper.toResponse(user);
     }
 
 
