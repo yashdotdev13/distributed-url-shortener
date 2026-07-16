@@ -1,6 +1,7 @@
 package com.yashdotdev.auth_service.service;
 
 import com.yashdotdev.auth_service.dtos.request.LoginRequest;
+import com.yashdotdev.auth_service.dtos.request.LogoutRequest;
 import com.yashdotdev.auth_service.dtos.request.RefreshTokenRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
@@ -179,6 +180,27 @@ public class AuthService {
                 .revoked(false)
                 .build();
 
+        refreshTokenRepository.save(refreshToken);
+
+    }
+
+    // logout
+
+    @Transactional
+    public void logout(LogoutRequest request) {
+
+        RefreshToken refreshToken =
+                refreshTokenRepository
+                        .findByTokenAndRevokedFalse(
+                                request.getRefreshToken()
+                        )
+                        .orElseThrow(() ->
+                                new InvalidTokenException(
+                                        "Invalid refresh token."
+                                )
+                        );
+
+        refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
 
     }
