@@ -1,6 +1,7 @@
 package com.yashdotdev.auth_service.controller;
 
 import com.yashdotdev.auth_service.dtos.request.LoginRequest;
+import com.yashdotdev.auth_service.dtos.request.LogoutRequest;
 import com.yashdotdev.auth_service.dtos.request.RefreshTokenRequest;
 import com.yashdotdev.auth_service.dtos.request.RegisterRequest;
 import com.yashdotdev.auth_service.dtos.response.AuthResponse;
@@ -51,6 +52,16 @@ public class AuthController {
         return ResponseEntity.ok(
                 authService.refreshToken(request)
         );
+
+    }
+
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
+
+        authService.logout(request);
+        return ResponseEntity.noContent().build();
 
     }
 
