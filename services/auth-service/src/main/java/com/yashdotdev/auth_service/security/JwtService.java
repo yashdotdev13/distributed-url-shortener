@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -79,11 +80,15 @@ public class JwtService {
             long expiration
     ) {
 
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + expiration);
+
         return Jwts.builder()
                 .claims(extraClaims)
+                .id(UUID.randomUUID().toString())
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .issuedAt(now)
+                .expiration(expiry)
                 .signWith(getSigningKey())
                 .compact();
     }
