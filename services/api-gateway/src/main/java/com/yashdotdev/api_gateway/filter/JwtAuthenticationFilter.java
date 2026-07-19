@@ -1,6 +1,7 @@
 package com.yashdotdev.api_gateway.filter;
 
 import com.yashdotdev.api_gateway.constants.GatewayConstants;
+import com.yashdotdev.api_gateway.exception.ErrorResponseWriter;
 import com.yashdotdev.api_gateway.security.JwtService;
 import com.yashdotdev.api_gateway.security.RouteValidator;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -22,11 +22,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtService jwtService;
     private final RouteValidator routeValidator;
+    private final ErrorResponseWriter errorResponseWriter;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange,
                              GatewayFilterChain chain) {
 
+        // Skip authentication for public endpoints
         if (!routeValidator.isSecured.test(exchange)) {
             return chain.filter(exchange);
         }
@@ -38,20 +40,28 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (authHeader == null ||
                 !authHeader.startsWith(GatewayConstants.BEARER)) {
 
-            return unauthorized(exchange, "Missing Authorization Header");
+            log.warn("Missing Authorization Header");
+
+            return errorResponseWriter.writeUnauthorized(
+                    exchange,
+                    "Missing Authorization Header"
+            );
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(GatewayConstants.BEARER.length());
 
         if (!jwtService.validateToken(token)) {
 
-            return unauthorized(exchange, "Invalid JWT Token");
+            log.warn("Invalid JWT Token");
+
+            return errorResponseWriter.writeUnauthorized(
+                    exchange,
+                    "Invalid JWT Token"
+            );
         }
 
         String username = jwtService.extractUsername(token);
-
         Long userId = jwtService.extractUserId(token);
-
         String roles = String.join(",", jwtService.extractRoles(token));
 
         ServerHttpRequest request = exchange.getRequest()
@@ -63,12 +73,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         log.info("""
                 
+                =====================================================
                 JWT Authenticated
-                
+                =====================================================
                 User ID  : {}
                 Username : {}
                 Roles    : {}
-                
+                =====================================================
                 """,
                 userId,
                 username,
@@ -82,21 +93,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         );
     }
 
-    private Mono<Void> unauthorized(ServerWebExchange exchange,
-                                    String message) {
-
-        log.warn(message);
-
-        exchange.getResponse()
-                .setStatusCode(HttpStatus.UNAUTHORIZED);
-
-        return exchange.getResponse()
-                .setComplete();
-    }
-
     @Override
     public int getOrder() {
-
         return Ordered.HIGHEST_PRECEDENCE + 2;
     }
 }
