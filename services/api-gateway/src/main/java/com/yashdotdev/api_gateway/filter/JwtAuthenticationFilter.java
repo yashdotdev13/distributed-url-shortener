@@ -73,9 +73,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         log.info("""
                 
-                =====================================================
+               
                 JWT Authenticated
-                =====================================================
+               
                 User ID  : {}
                 Username : {}
                 Roles    : {}
@@ -95,6 +95,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 2;
+        return Ordered.HIGHEST_PRECEDENCE + 3;
     }
 }

@@ -1,6 +1,5 @@
 package com.yashdotdev.api_gateway.exception;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yashdotdev.api_gateway.constants.GatewayConstants;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +17,39 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class ErrorResponseWriter {
 
-
     private final ObjectMapper objectMapper;
 
     public Mono<Void> writeUnauthorized(ServerWebExchange exchange,
                                         String message) {
+
+        return writeError(
+                exchange,
+                HttpStatus.UNAUTHORIZED,
+                message
+        );
+    }
+
+    public Mono<Void> writeTooManyRequests(ServerWebExchange exchange,
+                                           String message) {
+
+        return writeError(
+                exchange,
+                HttpStatus.TOO_MANY_REQUESTS,
+                message
+        );
+    }
+
+    private Mono<Void> writeError(ServerWebExchange exchange,
+                                  HttpStatus status,
+                                  String message) {
 
         String correlationId =
                 exchange.getAttribute(GatewayConstants.CORRELATION_ID);
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(Instant.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .status(status.value())
+                .error(status.getReasonPhrase())
                 .message(message)
                 .path(exchange.getRequest().getPath().value())
                 .correlationId(correlationId)
@@ -38,7 +57,7 @@ public class ErrorResponseWriter {
 
         ServerHttpResponse httpResponse = exchange.getResponse();
 
-        httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+        httpResponse.setStatusCode(status);
         httpResponse.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         try {
@@ -53,12 +72,16 @@ public class ErrorResponseWriter {
 
         } catch (Exception e) {
 
-            byte[] bytes = """
+            String fallback = String.format("""
                     {
-                        "status":401,
-                        "message":"Unauthorized"
+                        "status": %d,
+                        "message": "%s"
                     }
-                    """.getBytes(StandardCharsets.UTF_8);
+                    """,
+                    status.value(),
+                    status.getReasonPhrase());
+
+            byte[] bytes = fallback.getBytes(StandardCharsets.UTF_8);
 
             return httpResponse.writeWith(
                     Mono.just(
