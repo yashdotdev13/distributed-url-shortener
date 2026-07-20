@@ -29,6 +29,8 @@
 
         <module>services/api-gateway</module>
 
+        <module>services/url-service</module>
+
     </modules>
 
     <properties>
