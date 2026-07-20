@@ -39,6 +39,17 @@ public class ErrorResponseWriter {
         );
     }
 
+    public Mono<Void> writeServiceUnavailable(
+            ServerWebExchange exchange,
+            String message
+    ) {
+        return writeError(
+                exchange,
+                HttpStatus.SERVICE_UNAVAILABLE,
+                message
+        );
+    }
+
     private Mono<Void> writeError(ServerWebExchange exchange,
                                   HttpStatus status,
                                   String message) {
