@@ -5,6 +5,12 @@ spring:
   application:
     name: api-gateway
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2s
+
   cloud:
     gateway:
       server:

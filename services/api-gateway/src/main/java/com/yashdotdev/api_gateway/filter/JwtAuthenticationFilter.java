@@ -79,7 +79,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 User ID  : {}
                 Username : {}
                 Roles    : {}
-                =====================================================
+                
                 """,
                 userId,
                 username,
