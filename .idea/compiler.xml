@@ -30,6 +30,7 @@
       <module name="api-gateway" options="" />
       <module name="auth-service" options="" />
       <module name="discovery-server" options="-parameters" />
+      <module name="url-service" options="" />
     </option>
   </component>
 </project>
