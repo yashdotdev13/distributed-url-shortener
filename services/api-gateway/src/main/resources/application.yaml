@@ -42,6 +42,11 @@ spring:
               uri: lb://AUTH-SERVICE
               predicates:
                 - Path=/api/v1/auth/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: authServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/auth
 
 jwt:
   secretKey: ThisIsMyVeryLongSecretKeyForDistributedUrlShortenerApplication123456789
@@ -60,7 +65,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,gateway
+        include: health,info,prometheus,gateway,circuitbreakers,circuitbreakerevents
 
   endpoint:
     health:
@@ -71,7 +76,27 @@ management:
       export:
         enabled: true
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 5s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        registerHealthIndicator: true
+
+    instances:
+      authServiceCircuitBreaker:
+        baseConfig: default
+
 logging:
   level:
     org.springframework.cloud.gateway: INFO
     reactor.netty: INFO
+    io.github.resilience4j: INFO
