@@ -1,50 +1,53 @@
 package com.yashdotdev.url_service.mapper;
 
-
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
 import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
 import com.yashdotdev.url_service.entity.Url;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
+import com.yashdotdev.url_service.enums.UrlStatus;
+import org.springframework.stereotype.Component;
 
+@Component
+public class UrlMapper {
 
-@Mapper(
-        componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
-)
-public interface UrlMapper {
+    private static final String BASE_URL = "http://localhost:8081/";
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "originalUrl", source = "request.originalUrl")
-    @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "shortCode", source = "shortCode")
-    @Mapping(target = "status", constant = "ACTIVE")
-    @Mapping(target = "clickCount", expression = "java(0L)")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "expiresAt", ignore = true)
-    @Mapping(target = "lastAccessedAt", ignore = true)
-    Url toEntity(
+    public Url toEntity(
             CreateShortUrlRequest request,
             Long userId,
             String shortCode
-    );
+    ) {
 
-    @Mapping(
-            target = "shortUrl",
-            expression = "java(buildShortUrl(url.getShortCode()))"
-    )
-    ShortUrlResponse toShortUrlResponse(Url url);
+        return Url.builder()
+                .originalUrl(request.originalUrl())
+                .shortCode(shortCode)
+                .userId(userId)
+                .status(UrlStatus.ACTIVE)
+                .clickCount(0L)
+                .build();
+    }
 
-    @Mapping(
-            target = "shortUrl",
-            expression = "java(buildShortUrl(url.getShortCode()))"
-    )
-    UrlDetailsResponse toUrlDetailsResponse(Url url);
+    public ShortUrlResponse toShortUrlResponse(Url url) {
 
-    default String buildShortUrl(String shortCode) {
-        return "http://localhost:8081/" + shortCode;
+        return ShortUrlResponse.builder()
+                .id(url.getId())
+                .shortCode(url.getShortCode())
+                .shortUrl(BASE_URL + url.getShortCode())
+                .build();
+    }
+
+    public UrlDetailsResponse toUrlDetailsResponse(Url url) {
+
+        return UrlDetailsResponse.builder()
+                .id(url.getId())
+                .originalUrl(url.getOriginalUrl())
+                .shortCode(url.getShortCode())
+                .shortUrl(BASE_URL + url.getShortCode())
+                .clickCount(url.getClickCount())
+                .status(url.getStatus())
+                .createdAt(url.getCreatedAt())
+                .expiresAt(url.getExpiresAt())
+                .lastAccessedAt(url.getLastAccessedAt())
+                .build();
     }
 }

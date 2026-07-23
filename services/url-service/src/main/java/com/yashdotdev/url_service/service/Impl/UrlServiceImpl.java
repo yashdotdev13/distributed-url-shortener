@@ -51,6 +51,25 @@ public class UrlServiceImpl implements UrlService {
                 shortCode
         );
 
+        log.info("""
+==========================
+Mapped Entity
+==========================
+Original URL : {}
+Short Code   : {}
+User Id      : {}
+Status       : {}
+Click Count  : {}
+==========================
+""",
+                url.getOriginalUrl(),
+                url.getShortCode(),
+                url.getUserId(),
+                url.getStatus(),
+                url.getClickCount()
+        );
+
+
         Url savedUrl = urlRepository.save(url);
 
         log.info("""
