@@ -48,6 +48,14 @@ spring:
                     name: authServiceCircuitBreaker
                     fallbackUri: forward:/fallback/auth
 
+
+
+
+            - id: url-service
+              uri: lb://URL-SERVICE
+              predicates:
+                - Path=/api/v1/urls/**,/api/v1/r/**
+
 jwt:
   secretKey: ThisIsMyVeryLongSecretKeyForDistributedUrlShortenerApplication123456789
 

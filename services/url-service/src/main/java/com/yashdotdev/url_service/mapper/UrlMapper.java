@@ -21,7 +21,7 @@ public interface UrlMapper {
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "shortCode", source = "shortCode")
     @Mapping(target = "status", constant = "ACTIVE")
-    @Mapping(target = "clickCount", constant = "0")
+    @Mapping(target = "clickCount", expression = "java(0L)")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)

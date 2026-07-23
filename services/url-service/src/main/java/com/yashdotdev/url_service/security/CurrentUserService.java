@@ -1,8 +1,7 @@
 package com.yashdotdev.url_service.security;
 
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,24 +9,22 @@ import java.util.List;
 @Service
 public class CurrentUserService {
 
-    public AuthenticatedUser getCurrentUser(ServerWebExchange exchange) {
+    public AuthenticatedUser getCurrentUser(HttpServletRequest request) {
 
-        String userIdHeader = exchange.getRequest()
-                .getHeaders()
-                .getFirst(SecurityConstants.USER_ID);
+        String userIdHeader = request.getHeader(SecurityConstants.USER_ID);
 
-        String username = exchange.getRequest()
-                .getHeaders()
-                .getFirst(SecurityConstants.USERNAME);
+        String username = request.getHeader(SecurityConstants.USERNAME);
 
-        String rolesHeader = exchange.getRequest()
-                .getHeaders()
-                .getFirst(SecurityConstants.ROLES);
+        String rolesHeader = request.getHeader(SecurityConstants.ROLES);
+
+        if (userIdHeader == null || username == null) {
+            throw new RuntimeException("Missing authentication headers.");
+        }
 
         Long userId = Long.parseLong(userIdHeader);
 
         List<String> roles =
-                rolesHeader == null || rolesHeader.isBlank()
+                (rolesHeader == null || rolesHeader.isBlank())
                         ? List.of()
                         : Arrays.stream(rolesHeader.split(","))
                         .map(String::trim)

@@ -22,6 +22,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
         </processorPath>
         <module name="auth-service" />
+        <module name="url-service" />
       </profile>
     </annotationProcessing>
   </component>
