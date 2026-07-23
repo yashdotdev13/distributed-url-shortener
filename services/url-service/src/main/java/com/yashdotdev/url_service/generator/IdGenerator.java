@@ -1,4 +1,6 @@
 package com.yashdotdev.url_service.generator;
 
-public class IdGenerator {
+public interface IdGenerator {
+
+    long nextId();
 }
