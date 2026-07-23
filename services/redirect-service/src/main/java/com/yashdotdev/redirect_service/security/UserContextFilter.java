@@ -1,6 +1,5 @@
 package com.yashdotdev.redirect_service.security;
 
-import com.yashdotdev.url_service.security.SecurityConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,6 @@ public class UserContextFilter implements WebFilter, Ordered {
                 request.getHeaders().getFirst(SecurityConstants.USERNAME);
 
         if (userId == null || username == null) {
-
             log.warn("""
                     
                     Missing authenticated user headers.
@@ -38,12 +36,9 @@ public class UserContextFilter implements WebFilter, Ordered {
                     """,
                     request.getURI()
             );
-
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-
             return exchange.getResponse().setComplete();
         }
-
         return chain.filter(exchange);
     }
 
