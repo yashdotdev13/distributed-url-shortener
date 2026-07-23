@@ -2,6 +2,8 @@ package com.yashdotdev.redirect_service.cache;
 
 
 
+import com.yashdotdev.redirect_service.entity.Url;
+
 import java.util.Optional;
 
 public interface UrlCacheService {
