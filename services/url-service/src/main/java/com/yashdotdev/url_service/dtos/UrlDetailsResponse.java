@@ -17,9 +17,11 @@ public record UrlDetailsResponse(
 
         String shortUrl,
 
-        Long clickCount,
+        Long userId,
 
         UrlStatus status,
+
+        Long clickCount,
 
         Instant createdAt,
 
@@ -29,4 +31,5 @@ public record UrlDetailsResponse(
 
         Instant lastAccessedAt
 
-) {}
+) {
+}

@@ -28,9 +28,7 @@ public class CacheEvictConsumer {
         log.info("""
 
                 Cache Eviction Event Received
-
                 Short Code : {}
-
                 """,
                 event.shortCode()
         );
@@ -38,11 +36,8 @@ public class CacheEvictConsumer {
         cacheEvictionService.evict(event.shortCode());
 
         log.info("""
-
                 Redis Cache Evicted Successfully
-
                 Short Code : {}
-
                 """,
                 event.shortCode()
         );
