@@ -2,8 +2,10 @@ package com.yashdotdev.analytic_service.service.Impl;
 
 
 import com.yashdotdev.analytic_service.entity.ClickEvent;
+import com.yashdotdev.analytic_service.entity.UrlAnalytics;
 import com.yashdotdev.analytic_service.mapper.ClickEventMapper;
 import com.yashdotdev.analytic_service.repository.ClickEventRepository;
+import com.yashdotdev.analytic_service.repository.UrlAnalyticsRepository;
 import com.yashdotdev.analytic_service.service.AnalyticsService;
 import com.yashdotdev.common.events.ClickEvents;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ public class AnalyticServiceImpl implements AnalyticsService {
 
     private final ClickEventRepository clickEventRepository;
     private final ClickEventMapper clickEventMapper;
+    private final UrlAnalyticsRepository urlAnalyticsRepository;
 
 
     @Override
@@ -34,6 +37,11 @@ public class AnalyticServiceImpl implements AnalyticsService {
         ClickEvent clickEvent = clickEventMapper.toEntity(event);
         clickEventRepository.save(clickEvent);
 
+        urlAnalyticsRepository.upsertAnalytics(
+                event.shortCode(),
+                event.clickedAt()
+        );
+
         log.info("""
                 Click Event Saved Successfully
                 Event Id : {}
@@ -41,4 +49,5 @@ public class AnalyticServiceImpl implements AnalyticsService {
                 clickEvent.getId()
         );
     }
+
 }
