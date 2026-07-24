@@ -18,16 +18,15 @@ public class RedirectController {
 
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(
-            @PathVariable String shortCode
+            @PathVariable(name = "shortCode") String shortCode
     ) {
 
-        String originalUrl =
-                redirectService.resolveOriginalUrl(shortCode);
+        System.out.println("Controller reached: " + shortCode);
 
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
+        String originalUrl = redirectService.resolveOriginalUrl(shortCode);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
-                .header(HttpHeaders.CACHE_CONTROL, "no-cache")
                 .build();
     }
 
