@@ -26,6 +26,13 @@ public class Url {
     )
     private String originalUrl;
 
+
+    @Column(
+            name = "user_id",
+            nullable = false
+    )
+    private Long userId;
+
     @Column(
             name = "short_code",
             nullable = false,

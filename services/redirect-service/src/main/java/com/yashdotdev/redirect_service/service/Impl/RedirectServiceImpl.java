@@ -1,11 +1,12 @@
 package com.yashdotdev.redirect_service.service.Impl;
 
-
+import com.yashdotdev.common.events.ClickEvents;
 import com.yashdotdev.redirect_service.cache.UrlCacheService;
 import com.yashdotdev.redirect_service.entity.Url;
 import com.yashdotdev.redirect_service.enums.UrlStatus;
 import com.yashdotdev.redirect_service.exceptions.ShortUrlNotFoundException;
 import com.yashdotdev.redirect_service.exceptions.UrlExpiredException;
+import com.yashdotdev.redirect_service.producer.ClickEventProducer;
 import com.yashdotdev.redirect_service.repository.UrlRepository;
 import com.yashdotdev.redirect_service.service.RedirectService;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +23,18 @@ public class RedirectServiceImpl implements RedirectService {
 
     private final UrlRepository urlRepository;
     private final UrlCacheService urlCacheService;
+    private final ClickEventProducer clickEventProducer;
 
     @Override
     public String resolveOriginalUrl(String shortCode) {
 
         log.info("""
 
-            Resolving Short URL
+                Resolving Short URL
 
-            Short Code : {}
+                Short Code : {}
 
-            """,
+                """,
                 shortCode
         );
 
@@ -47,13 +49,15 @@ public class RedirectServiceImpl implements RedirectService {
 
             validateExpiration(url);
 
+            publishClickEvent(url);
+
             log.info("""
 
-                Returning URL from Redis
+                    Returning URL from Redis
 
-                Original URL : {}
+                    Original URL : {}
 
-                """,
+                    """,
                     url.getOriginalUrl()
             );
 
@@ -79,19 +83,20 @@ public class RedirectServiceImpl implements RedirectService {
          */
         urlCacheService.put(url);
 
+        publishClickEvent(url);
+
         log.info("""
 
-            Returning URL from Database
+                Returning URL from Database
 
-            Original URL : {}
+                Original URL : {}
 
-            """,
+                """,
                 url.getOriginalUrl()
         );
 
         return url.getOriginalUrl();
     }
-
 
     private void validateExpiration(Url url) {
 
@@ -100,6 +105,27 @@ public class RedirectServiceImpl implements RedirectService {
 
             throw new UrlExpiredException(url.getShortCode());
         }
+    }
 
+    private void publishClickEvent(Url url) {
+
+        log.info("""
+
+                Publishing Click Event
+
+                Short Code : {}
+
+                """,
+                url.getShortCode()
+        );
+
+        ClickEvents event = ClickEvents.builder()
+                .shortCode(url.getShortCode())
+                .originalUrl(url.getOriginalUrl())
+                .userId(url.getUserId())
+                .clickedAt(Instant.now())
+                .build();
+
+        clickEventProducer.publish(event);
     }
 }
