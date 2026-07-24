@@ -27,4 +27,12 @@ public class ClickEvent {
 
     private Instant clickedAt;
 
+    private String ipAddress;
+
+    @Column(columnDefinition = "TEXT")
+    private String userAgent;
+
+    @Column(columnDefinition = "TEXT")
+    private String referer;
+
 }

@@ -9,6 +9,8 @@ import com.yashdotdev.redirect_service.exceptions.UrlExpiredException;
 import com.yashdotdev.redirect_service.producer.ClickEventProducer;
 import com.yashdotdev.redirect_service.repository.UrlRepository;
 import com.yashdotdev.redirect_service.service.RedirectService;
+import com.yashdotdev.redirect_service.util.RequestMetadataExtractor;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,13 @@ public class RedirectServiceImpl implements RedirectService {
     private final UrlRepository urlRepository;
     private final UrlCacheService urlCacheService;
     private final ClickEventProducer clickEventProducer;
+    private final RequestMetadataExtractor metadataExtractor;
 
     @Override
-    public String resolveOriginalUrl(String shortCode) {
+    public String resolveOriginalUrl(
+            String shortCode,
+            HttpServletRequest request
+    ) {
 
         log.info("""
 
@@ -49,7 +55,7 @@ public class RedirectServiceImpl implements RedirectService {
 
             validateExpiration(url);
 
-            publishClickEvent(url);
+            publishClickEvent(url, request);
 
             log.info("""
 
@@ -83,7 +89,7 @@ public class RedirectServiceImpl implements RedirectService {
          */
         urlCacheService.put(url);
 
-        publishClickEvent(url);
+        publishClickEvent(url, request);
 
         log.info("""
 
@@ -107,7 +113,10 @@ public class RedirectServiceImpl implements RedirectService {
         }
     }
 
-    private void publishClickEvent(Url url) {
+    private void publishClickEvent(
+            Url url,
+            HttpServletRequest request
+    ) {
 
         log.info("""
 
@@ -123,6 +132,15 @@ public class RedirectServiceImpl implements RedirectService {
                 .shortCode(url.getShortCode())
                 .originalUrl(url.getOriginalUrl())
                 .userId(url.getUserId())
+                .ipAddress(
+                        metadataExtractor.getIpAddress(request)
+                )
+                .userAgent(
+                        metadataExtractor.getUserAgent(request)
+                )
+                .referer(
+                        metadataExtractor.getReferer(request)
+                )
                 .clickedAt(Instant.now())
                 .build();
 

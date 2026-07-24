@@ -13,5 +13,11 @@ public record ClickEvents(
 
         Long userId,
 
+        String ipAddress,
+
+        String userAgent,
+
+        String referer,
+
         Instant clickedAt
 ){}

@@ -15,6 +15,9 @@ public class ClickEventMapper {
                 .shortCode(event.shortCode())
                 .originalUrl(event.originalUrl())
                 .userId(event.userId())
+                .ipAddress(event.ipAddress())
+                .userAgent(event.userAgent())
+                .referer(event.referer())
                 .clickedAt(event.clickedAt())
                 .build();
     }
