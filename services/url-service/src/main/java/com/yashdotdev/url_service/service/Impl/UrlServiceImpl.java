@@ -98,12 +98,9 @@ Click Count  : {}
         String shortCode;
 
         do {
-
             shortCode = shortCodeGenerator.generate();
 
         } while (urlRepository.existsByShortCode(shortCode));
-
         return shortCode;
     }
-
 }

@@ -5,4 +5,7 @@ public final class KafkaTopics {
     private KafkaTopics() {}
 
     public static final String CLICK_EVENTS = "click-events";
+
+    public static final String CACHE_EVICT =
+            "cache-evict-events";
 }
