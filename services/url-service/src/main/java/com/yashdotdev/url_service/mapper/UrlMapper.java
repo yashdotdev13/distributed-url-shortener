@@ -43,9 +43,11 @@ public class UrlMapper {
                 .originalUrl(url.getOriginalUrl())
                 .shortCode(url.getShortCode())
                 .shortUrl(BASE_URL + url.getShortCode())
-                .clickCount(url.getClickCount())
+                .userId(url.getUserId())
                 .status(url.getStatus())
+                .clickCount(url.getClickCount())
                 .createdAt(url.getCreatedAt())
+                .updatedAt(url.getUpdatedAt())
                 .expiresAt(url.getExpiresAt())
                 .lastAccessedAt(url.getLastAccessedAt())
                 .build();

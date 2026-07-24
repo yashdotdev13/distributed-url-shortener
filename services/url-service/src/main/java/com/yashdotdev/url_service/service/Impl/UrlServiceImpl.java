@@ -3,7 +3,9 @@ package com.yashdotdev.url_service.service.Impl;
 
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
+import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
 import com.yashdotdev.url_service.entity.Url;
+import com.yashdotdev.url_service.exception.UrlNotFoundException;
 import com.yashdotdev.url_service.generator.ShortCodeGenerator;
 import com.yashdotdev.url_service.mapper.UrlMapper;
 import com.yashdotdev.url_service.repository.UrlRepository;
@@ -85,6 +87,29 @@ Click Count  : {}
         );
 
         return urlMapper.toShortUrlResponse(savedUrl);
+    }
+
+    @Override
+    public UrlDetailsResponse getUrl( Long id,Long userId) {
+
+        log.info("""
+
+            Fetching URL
+
+            URL ID  : {}
+            User ID : {}
+
+            """,
+                id,
+                userId
+        );
+        Url url = urlRepository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() ->
+                        new UrlNotFoundException(id)
+                );
+
+        return urlMapper.toUrlDetailsResponse(url);
     }
 
     /**

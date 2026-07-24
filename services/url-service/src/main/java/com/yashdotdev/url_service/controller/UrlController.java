@@ -2,6 +2,7 @@ package com.yashdotdev.url_service.controller;
 
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
+import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
 import com.yashdotdev.url_service.security.CurrentUserService;
 import com.yashdotdev.url_service.service.UrlService;
@@ -38,5 +39,20 @@ public class UrlController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UrlDetailsResponse> getUrl(
+            @PathVariable("id") Long id,
+            @RequestHeader("X-User-Id") Long userId
+
+    ) {
+
+        return ResponseEntity.ok(
+                urlService.getUrl(
+                        id,
+                        userId
+                )
+        );
     }
 }
