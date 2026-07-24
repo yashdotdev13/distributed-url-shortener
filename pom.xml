@@ -31,6 +31,8 @@
 
         <module>services/url-service</module>
 
+        <module>services/analytic-service</module>
+
     </modules>
 
     <properties>
