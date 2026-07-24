@@ -17,9 +17,10 @@ public class RouteValidator {
             "/api/v1/auth/forgot-password",
             "/api/v1/auth/reset-password",
 
+            "/api/v1/r/",
+
             "/actuator",
             "/actuator/**"
-
     );
 
     public final Predicate<ServerWebExchange> isSecured =

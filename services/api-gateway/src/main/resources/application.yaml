@@ -38,6 +38,7 @@ spring:
                 allowCredentials: true
 
           routes:
+
             - id: auth-service
               uri: lb://AUTH-SERVICE
               predicates:
@@ -48,13 +49,16 @@ spring:
                     name: authServiceCircuitBreaker
                     fallbackUri: forward:/fallback/auth
 
-
-
-
             - id: url-service
               uri: lb://URL-SERVICE
               predicates:
-                - Path=/api/v1/urls/**,/api/v1/r/**
+                - Path=/api/v1/urls/**
+
+
+            - id: redirect-service
+              uri: lb://REDIRECT-SERVICE
+              predicates:
+                - Path=/api/v1/r/**
 
 jwt:
   secretKey: ThisIsMyVeryLongSecretKeyForDistributedUrlShortenerApplication123456789
