@@ -4,5 +4,5 @@ import com.yashdotdev.common.events.ClickEvents;
 
 public interface AnalyticsService {
 
-    void saveClickEvent(ClickEvents events);
+    void saveClickEvent(ClickEvents event);
 }
