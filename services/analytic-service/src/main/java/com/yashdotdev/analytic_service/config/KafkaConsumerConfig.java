@@ -1,6 +1,7 @@
 package com.yashdotdev.analytic_service.config;
 
 import com.yashdotdev.common.events.ClickEvents;
+import com.yashdotdev.common.events.UrlCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,6 +69,48 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
+    public ConsumerFactory<String, UrlCreatedEvent> urlCreatedConsumerFactory() {
+
+        JsonDeserializer<UrlCreatedEvent> deserializer =
+                new JsonDeserializer<>(UrlCreatedEvent.class);
+
+        deserializer.addTrustedPackages("com.yashdotdev.common.events");
+
+        Map<String, Object> props = new HashMap<>();
+
+        props.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                bootstrapServers
+        );
+
+        props.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                groupId
+        );
+
+        props.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+
+        props.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class
+        );
+
+        props.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                deserializer
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ClickEvents>
     kafkaListenerContainerFactory() {
 
@@ -75,6 +118,20 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory());
+
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, UrlCreatedEvent>
+    urlCreatedKafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<String, UrlCreatedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(
+                urlCreatedConsumerFactory()
+        );
 
         return factory;
     }
