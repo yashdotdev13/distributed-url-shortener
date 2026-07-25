@@ -3,6 +3,7 @@ package com.yashdotdev.url_service.mapper;
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
 import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
+import com.yashdotdev.url_service.dtos.UrlSummaryResponse;
 import com.yashdotdev.url_service.entity.Url;
 import com.yashdotdev.url_service.enums.UrlStatus;
 import org.springframework.stereotype.Component;
@@ -50,6 +51,19 @@ public class UrlMapper {
                 .updatedAt(url.getUpdatedAt())
                 .expiresAt(url.getExpiresAt())
                 .lastAccessedAt(url.getLastAccessedAt())
+                .build();
+    }
+
+    public UrlSummaryResponse toUrlSummaryResponse(Url url) {
+
+        return UrlSummaryResponse.builder()
+                .id(url.getId())
+                .originalUrl(url.getOriginalUrl())
+                .shortCode(url.getShortCode())
+                .shortUrl(BASE_URL + url.getShortCode())
+                .status(url.getStatus())
+                .clickCount(url.getClickCount())
+                .createdAt(url.getCreatedAt())
                 .build();
     }
 }

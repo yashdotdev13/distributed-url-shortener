@@ -3,6 +3,8 @@ package com.yashdotdev.url_service.repository;
 
 import com.yashdotdev.url_service.entity.Url;
 import com.yashdotdev.url_service.enums.UrlStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,10 @@ public interface UrlRepository extends JpaRepository<Url, Long> {
     /**
      * Dashboard - all URLs of a user.
      */
-    List<Url> findAllByUserId(Long userId);
+    Page<Url> findAllByUserId(
+            Long userId,
+            Pageable pageable
+    );
 
     /**
      * Dashboard with status filtering.
