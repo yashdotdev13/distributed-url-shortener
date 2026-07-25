@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 public interface BrowserAnalyticsRepository
         extends JpaRepository<BrowserAnalytics, Long> {
@@ -33,4 +35,6 @@ public interface BrowserAnalyticsRepository
             @Param("browser") String browser
 
     );
+
+    List<BrowserAnalytics> findByShortCodeOrderByClicksDesc(String shortCode);
 }

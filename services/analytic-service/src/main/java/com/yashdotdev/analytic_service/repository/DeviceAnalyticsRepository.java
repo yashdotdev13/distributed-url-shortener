@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface DeviceAnalyticsRepository
         extends JpaRepository<DeviceAnalytics, Long> {
 
@@ -26,4 +28,6 @@ public interface DeviceAnalyticsRepository
             @Param("shortCode") String shortCode,
             @Param("deviceType") String deviceType
     );
+
+    List<DeviceAnalytics> findByShortCodeOrderByClicksDesc(String shortCode);
 }

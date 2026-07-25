@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 public interface OperatingSystemAnalyticsRepository
         extends JpaRepository<OperatingSystemAnalytics, Long> {
@@ -28,4 +30,6 @@ public interface OperatingSystemAnalyticsRepository
             @Param("shortCode") String shortCode,
             @Param("operatingSystem") String operatingSystem
     );
+
+    List<OperatingSystemAnalytics> findByShortCodeOrderByClicksDesc(String shortCode);
 }
