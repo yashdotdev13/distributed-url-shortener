@@ -2,7 +2,7 @@ package com.yashdotdev.analytic_service.mapper;
 
 
 
-import com.yashdotdev.analytic_service.entity.ClickEvent;
+import com.yashdotdev.analytic_service.entity.raw.ClickEvent;
 import com.yashdotdev.common.events.ClickEvents;
 import org.springframework.stereotype.Component;
 

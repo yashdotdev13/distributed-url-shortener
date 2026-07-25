@@ -1,12 +1,12 @@
 package com.yashdotdev.analytic_service.service.Impl;
 
-
-import com.yashdotdev.analytic_service.entity.ClickEvent;
-import com.yashdotdev.analytic_service.entity.UrlAnalytics;
+import com.yashdotdev.analytic_service.dtos.UserAgentMetadata;
+import com.yashdotdev.analytic_service.entity.raw.ClickEvent;
 import com.yashdotdev.analytic_service.mapper.ClickEventMapper;
 import com.yashdotdev.analytic_service.repository.ClickEventRepository;
 import com.yashdotdev.analytic_service.repository.UrlAnalyticsRepository;
 import com.yashdotdev.analytic_service.service.AnalyticsService;
+import com.yashdotdev.analytic_service.service.parser.UserAgentParserService;
 import com.yashdotdev.common.events.ClickEvents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class AnalyticServiceImpl implements AnalyticsService {
     private final ClickEventRepository clickEventRepository;
     private final ClickEventMapper clickEventMapper;
     private final UrlAnalyticsRepository urlAnalyticsRepository;
-
+    private final UserAgentParserService userAgentParserService;
 
     @Override
     public void saveClickEvent(ClickEvents event) {
@@ -34,7 +34,28 @@ public class AnalyticServiceImpl implements AnalyticsService {
                 event.userId()
         );
 
+        UserAgentMetadata metadata =
+                userAgentParserService.parse(
+                        event.userAgent()
+                );
+
+        log.info("""
+                User-Agent Parsed
+                Browser : {}
+                OS       : {}
+                Device   : {}
+                """,
+                metadata.browser(),
+                metadata.operatingSystem(),
+                metadata.deviceType()
+        );
+
         ClickEvent clickEvent = clickEventMapper.toEntity(event);
+
+        clickEvent.setBrowser(metadata.browser());
+        clickEvent.setOperatingSystem(metadata.operatingSystem());
+        clickEvent.setDeviceType(metadata.deviceType());
+
         clickEventRepository.save(clickEvent);
 
         urlAnalyticsRepository.upsertAnalytics(
@@ -49,5 +70,4 @@ public class AnalyticServiceImpl implements AnalyticsService {
                 clickEvent.getId()
         );
     }
-
 }

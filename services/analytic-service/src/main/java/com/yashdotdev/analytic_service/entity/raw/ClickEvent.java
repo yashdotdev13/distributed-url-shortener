@@ -1,5 +1,8 @@
-package com.yashdotdev.analytic_service.entity;
+package com.yashdotdev.analytic_service.entity.raw;
 
+import com.yashdotdev.analytic_service.enums.BrowserType;
+import com.yashdotdev.analytic_service.enums.DeviceType;
+import com.yashdotdev.analytic_service.enums.OperatingSystem;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,13 +38,16 @@ public class ClickEvent {
     @Column(columnDefinition = "TEXT")
     private String referer;
 
-    @Column(name = "browser", length = 50)
-    private String browser;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "browser")
+    private BrowserType browser;
 
-    @Column(name = "operating_system", length = 50)
-    private String operatingSystem;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "operating_system")
+    private OperatingSystem operatingSystem;
 
-    @Column(name = "device_type", length = 30)
-    private String deviceType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "device_type")
+    private DeviceType deviceType;
 
 }

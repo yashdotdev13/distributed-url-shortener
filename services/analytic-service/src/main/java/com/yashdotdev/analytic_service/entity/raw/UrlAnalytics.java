@@ -1,4 +1,4 @@
-package com.yashdotdev.analytic_service.entity;
+package com.yashdotdev.analytic_service.entity.raw;
 
 
 import jakarta.persistence.*;

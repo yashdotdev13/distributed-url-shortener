@@ -2,7 +2,7 @@ package com.yashdotdev.analytic_service.repository;
 
 
 
-import com.yashdotdev.analytic_service.entity.UrlAnalytics;
+import com.yashdotdev.analytic_service.entity.raw.UrlAnalytics;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
