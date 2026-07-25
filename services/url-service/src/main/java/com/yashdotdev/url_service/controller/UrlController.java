@@ -87,4 +87,19 @@ public class UrlController {
                 )
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUrl(
+
+            @PathVariable("id") Long id,
+            @RequestHeader("X-User-Id") Long userId
+
+    ) {
+
+        urlService.deleteUrl(
+                id,
+                userId
+        );
+        return ResponseEntity.noContent().build();
+    }
 }

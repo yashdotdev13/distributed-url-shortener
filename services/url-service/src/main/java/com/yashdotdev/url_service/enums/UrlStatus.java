@@ -4,6 +4,8 @@ public enum UrlStatus {
 
     ACTIVE,
 
+    DISABLED,
+
     EXPIRED,
 
     DELETED

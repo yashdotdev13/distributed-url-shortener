@@ -3,6 +3,7 @@ package com.yashdotdev.url_service.service.Impl;
 
 import com.yashdotdev.url_service.dtos.*;
 import com.yashdotdev.url_service.entity.Url;
+import com.yashdotdev.url_service.enums.UrlStatus;
 import com.yashdotdev.url_service.exception.UrlNotFoundException;
 import com.yashdotdev.url_service.generator.ShortCodeGenerator;
 import com.yashdotdev.url_service.kafka.CacheEvictProducer;
@@ -182,8 +183,48 @@ Click Count  : {}
          * Evict Redis Cache
          */
         cacheEvictProducer.publish(updatedUrl.getShortCode());
-
         return urlMapper.toShortUrlResponse(updatedUrl);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUrl(Long id, Long userId) {
+
+        log.info("""
+
+            Deleting URL
+            URL ID  : {}
+            User ID : {}
+
+            """,
+                id,
+                userId
+        );
+        Url url = urlRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(()->
+                        new UrlNotFoundException(id));
+
+        if(url.getStatus()== UrlStatus.DELETED){
+            log.warn("URL {} is already deleted",id);
+            return;
+        }
+
+        url.setStatus(UrlStatus.DELETED);
+        urlRepository.delete(url);
+
+        cacheEvictProducer.publish(url.getShortCode());
+
+        log.info("""
+
+            URL Deleted Successfully
+
+            URL ID     : {}
+            Short Code : {}
+
+            """,
+                url.getId(),
+                url.getShortCode()
+        );
     }
 
     /**
