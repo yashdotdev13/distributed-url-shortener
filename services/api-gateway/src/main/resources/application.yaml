@@ -60,6 +60,11 @@ spring:
               predicates:
                 - Path=/api/v1/r/**
 
+            - id: analytic-service
+              uri: lb://ANALYTIC-SERVICE
+              predicates:
+                - Path=/api/v1/analytics/**
+
 jwt:
   secretKey: ThisIsMyVeryLongSecretKeyForDistributedUrlShortenerApplication123456789
 

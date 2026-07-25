@@ -1,12 +1,14 @@
 package com.yashdotdev.url_service.service.Impl;
 
 
+import com.yashdotdev.common.events.UrlCreatedEvent;
 import com.yashdotdev.url_service.dtos.*;
 import com.yashdotdev.url_service.entity.Url;
 import com.yashdotdev.url_service.enums.UrlStatus;
 import com.yashdotdev.url_service.exception.UrlNotFoundException;
 import com.yashdotdev.url_service.generator.ShortCodeGenerator;
 import com.yashdotdev.url_service.kafka.CacheEvictProducer;
+import com.yashdotdev.url_service.kafka.UrlCreatedEventProducer;
 import com.yashdotdev.url_service.mapper.UrlMapper;
 import com.yashdotdev.url_service.repository.UrlRepository;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
@@ -31,6 +33,8 @@ public class UrlServiceImpl implements UrlService {
 
     private final CacheEvictProducer cacheEvictProducer;
     private final AliasValidationService aliasValidationService;
+
+    private final UrlCreatedEventProducer urlCreatedEventProducer;
 
     @Override
     @Transactional
@@ -90,6 +94,8 @@ public class UrlServiceImpl implements UrlService {
 
         Url savedUrl = urlRepository.save(url);
 
+
+
         log.info("""
 
             URL Created Successfully
@@ -101,6 +107,8 @@ public class UrlServiceImpl implements UrlService {
                 savedUrl.getId(),
                 savedUrl.getShortCode()
         );
+
+        publishUrlCreatedEvent(savedUrl);
 
         return urlMapper.toShortUrlResponse(savedUrl);
     }
@@ -353,5 +361,28 @@ public class UrlServiceImpl implements UrlService {
 
         } while (urlRepository.existsByShortCode(shortCode));
         return shortCode;
+    }
+
+
+    private void publishUrlCreatedEvent(Url url) {
+
+        log.info("""
+
+            Publishing UrlCreatedEvent
+
+            Short Code : {}
+            Owner Id   : {}
+
+            """,
+                url.getShortCode(),
+                url.getUserId()
+        );
+
+        UrlCreatedEvent event = UrlCreatedEvent.builder()
+                .shortCode(url.getShortCode())
+                .userId(url.getUserId())
+                .build();
+
+        urlCreatedEventProducer.publish(event);
     }
 }

@@ -8,4 +8,7 @@ public final class KafkaTopics {
 
     public static final String CACHE_EVICT =
             "cache-evict-events";
+
+    public static final String URL_CREATED_EVENTS =
+            "url-created-events";
 }
