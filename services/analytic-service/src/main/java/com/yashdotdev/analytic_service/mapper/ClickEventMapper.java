@@ -21,4 +21,5 @@ public class ClickEventMapper {
                 .clickedAt(event.clickedAt())
                 .build();
     }
+
 }
