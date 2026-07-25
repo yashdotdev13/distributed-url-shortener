@@ -1,4 +1,8 @@
 package com.yashdotdev.analytic_service.service.parser;
 
-public class UserAgentParserService {
+import com.yashdotdev.analytic_service.dtos.UserAgentMetadata;
+
+public interface UserAgentParserService {
+
+    UserAgentMetadata parse(String userAgent);
 }
