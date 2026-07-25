@@ -4,6 +4,7 @@ package com.yashdotdev.url_service.service.Impl;
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
 import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
+import com.yashdotdev.url_service.dtos.UrlSummaryResponse;
 import com.yashdotdev.url_service.entity.Url;
 import com.yashdotdev.url_service.exception.UrlNotFoundException;
 import com.yashdotdev.url_service.generator.ShortCodeGenerator;
@@ -13,6 +14,8 @@ import com.yashdotdev.url_service.security.AuthenticatedUser;
 import com.yashdotdev.url_service.service.UrlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +113,25 @@ Click Count  : {}
                 );
 
         return urlMapper.toUrlDetailsResponse(url);
+    }
+
+    @Override
+    public Page<UrlSummaryResponse> getAllUrls(Long userId, Pageable pageable) {
+        log.info("""
+
+            Fetching URLs
+
+            User ID : {}
+            Page    : {}
+            Size    : {}
+
+            """,
+                userId,
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+        return urlRepository.findAllByUserId(userId, pageable)
+                .map(urlMapper::toUrlSummaryResponse);
     }
 
     /**

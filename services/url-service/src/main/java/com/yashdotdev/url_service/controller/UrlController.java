@@ -3,12 +3,15 @@ package com.yashdotdev.url_service.controller;
 import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
 import com.yashdotdev.url_service.dtos.ShortUrlResponse;
 import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
+import com.yashdotdev.url_service.dtos.UrlSummaryResponse;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
 import com.yashdotdev.url_service.security.CurrentUserService;
 import com.yashdotdev.url_service.service.UrlService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +56,17 @@ public class UrlController {
                         id,
                         userId
                 )
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<UrlSummaryResponse>> getAllUrls(
+
+            @RequestHeader("X-User-Id") Long userId,
+            Pageable pageable
+
+    ) {
+        return ResponseEntity.ok(urlService.getAllUrls(userId,pageable)
         );
     }
 }
