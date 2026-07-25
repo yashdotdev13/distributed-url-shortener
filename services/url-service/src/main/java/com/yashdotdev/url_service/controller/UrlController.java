@@ -117,4 +117,18 @@ public class UrlController {
         );
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/enable")
+    public ResponseEntity<Void> enableUrl(
+
+            @PathVariable("id") Long id,
+            @RequestHeader("X-User-Id") Long userId
+
+    ) {
+        urlService.enableUrl(
+                id,
+                userId
+        );
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -272,6 +272,64 @@ Click Count  : {}
 
     }
 
+    @Override
+    @Transactional
+    public void enableUrl(long id, Long userId) {
+
+        log.info("""
+
+            Enabling URL
+
+            URL ID  : {}
+            User ID : {}
+
+            """,
+                id,
+                userId
+        );
+
+        Url url = urlRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(()->
+                        new UrlNotFoundException(id));
+
+                if(url.getStatus()== UrlStatus.ACTIVE){
+                    log.warn("Url {} is alredy active",id);
+                    return;
+                }
+
+        if (url.getStatus() == UrlStatus.DELETED) {
+
+            throw new IllegalStateException(
+                    "Deleted URL cannot be enabled."
+            );
+        }
+        if (url.getStatus() == UrlStatus.EXPIRED) {
+
+            throw new IllegalStateException(
+                    "Expired URL cannot be enabled."
+            );
+        }
+
+        url.setStatus(UrlStatus.ACTIVE);
+
+        urlRepository.save(url);
+        cacheEvictProducer.publish(
+                url.getShortCode()
+        );
+
+        log.info("""
+
+            URL Enabled Successfully
+
+            URL ID     : {}
+            Short Code : {}
+
+            """,
+                url.getId(),
+                url.getShortCode()
+        );
+
+    }
 
 
     private String generateUniqueShortCode() {

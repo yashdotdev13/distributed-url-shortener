@@ -26,4 +26,6 @@ public interface UrlService {
     void deleteUrl(Long id, Long userId);
 
     void disableUrl(Long id, Long userId);
+
+    void enableUrl(long id, Long userId);
 }
