@@ -215,8 +215,52 @@ Click Count  : {}
         cacheEvictProducer.publish(url.getShortCode());
 
         log.info("""
-
             URL Deleted Successfully
+            URL ID     : {}
+            Short Code : {}
+            """,
+                url.getId(),
+                url.getShortCode()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void disableUrl(Long id, Long userId) {
+
+        log.info("""
+                Disabling URL
+                
+                URL id: {}
+                Shoet Code: {}
+                """,
+                id, userId);
+
+        Url url = urlRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(()->
+                        new UrlNotFoundException(id));
+
+        if(url.getStatus()== UrlStatus.DISABLED){
+            log.warn("Url {} is already disabled.",id);
+            return;
+        }
+
+        if(url.getStatus()== UrlStatus.DELETED){
+            throw new IllegalStateException("Deleted URL cannot be disabled"
+            );
+
+        }
+
+        url.setStatus(UrlStatus.DISABLED);
+
+        urlRepository.save(url);
+        cacheEvictProducer.publish(
+                url.getShortCode()
+        );
+
+        log.info("""
+
+            URL Disabled Successfully
 
             URL ID     : {}
             Short Code : {}
@@ -225,14 +269,11 @@ Click Count  : {}
                 url.getId(),
                 url.getShortCode()
         );
+
     }
 
-    /**
-     * Generates a unique short code.
-     * Today this is mostly a safeguard.
-     * Tomorrow, with Snowflake IDs, collisions
-     * should be practically impossible.
-     */
+
+
     private String generateUniqueShortCode() {
 
         String shortCode;

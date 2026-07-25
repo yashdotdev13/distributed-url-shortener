@@ -24,4 +24,6 @@ public interface UrlService {
     ShortUrlResponse updateUrl(Long id, Long userId, UpdateUrlRequest request);
 
     void deleteUrl(Long id, Long userId);
+
+    void disableUrl(Long id, Long userId);
 }

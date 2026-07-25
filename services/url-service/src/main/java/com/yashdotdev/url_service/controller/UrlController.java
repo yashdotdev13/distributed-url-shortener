@@ -63,8 +63,8 @@ public class UrlController {
             Pageable pageable
 
     ) {
-        return ResponseEntity.ok(urlService.getAllUrls(userId,pageable)
-        );
+        return ResponseEntity.ok(urlService.getAllUrls(userId,pageable));
+
     }
 
 
@@ -97,6 +97,21 @@ public class UrlController {
     ) {
 
         urlService.deleteUrl(
+                id,
+                userId
+        );
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<Void> disableUrl(
+
+            @PathVariable("id") Long id,
+            @RequestHeader("X-User-Id") Long userId
+
+    ) {
+        urlService.disableUrl(
                 id,
                 userId
         );
