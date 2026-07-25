@@ -10,6 +10,7 @@ import com.yashdotdev.url_service.kafka.CacheEvictProducer;
 import com.yashdotdev.url_service.mapper.UrlMapper;
 import com.yashdotdev.url_service.repository.UrlRepository;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
+import com.yashdotdev.url_service.service.AliasValidationService;
 import com.yashdotdev.url_service.service.UrlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,27 +30,38 @@ public class UrlServiceImpl implements UrlService {
     private final UrlMapper urlMapper;
 
     private final CacheEvictProducer cacheEvictProducer;
+    private final AliasValidationService aliasValidationService;
 
     @Override
+    @Transactional
     public ShortUrlResponse createShortUrl(
             CreateShortUrlRequest request,
             AuthenticatedUser currentUser
     ) {
 
         log.info("""
-                
 
-                Creating Short URL
+            Creating Short URL
 
-                User Id      : {}
-                Original URL : {}
+            User Id      : {}
+            Original URL : {}
+            Custom Alias : {}
 
-                """,
+            """,
                 currentUser.userId(),
-                request.originalUrl()
+                request.originalUrl(),
+                request.customAlias()
         );
 
-        String shortCode = generateUniqueShortCode();
+
+        String alias = aliasValidationService
+                .validateAndNormalize(request.customAlias());
+
+
+        String shortCode = (alias != null)
+                ? alias
+                : generateUniqueShortCode();
+
 
         Url url = urlMapper.toEntity(
                 request,
@@ -58,16 +70,16 @@ public class UrlServiceImpl implements UrlService {
         );
 
         log.info("""
-==========================
-Mapped Entity
-==========================
-Original URL : {}
-Short Code   : {}
-User Id      : {}
-Status       : {}
-Click Count  : {}
-==========================
-""",
+            ==========================
+            Mapped Entity
+            ==========================
+            Original URL : {}
+            Short Code   : {}
+            User Id      : {}
+            Status       : {}
+            Click Count  : {}
+            ==========================
+            """,
                 url.getOriginalUrl(),
                 url.getShortCode(),
                 url.getUserId(),
@@ -79,13 +91,13 @@ Click Count  : {}
         Url savedUrl = urlRepository.save(url);
 
         log.info("""
-                
-                URL Created Successfully
 
-                URL Id     : {}
-                Short Code : {}
+            URL Created Successfully
 
-                """,
+            URL Id     : {}
+            Short Code : {}
+
+            """,
                 savedUrl.getId(),
                 savedUrl.getShortCode()
         );
