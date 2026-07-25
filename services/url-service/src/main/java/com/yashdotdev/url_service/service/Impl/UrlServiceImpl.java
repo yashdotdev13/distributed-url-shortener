@@ -1,13 +1,11 @@
 package com.yashdotdev.url_service.service.Impl;
 
 
-import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
-import com.yashdotdev.url_service.dtos.ShortUrlResponse;
-import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
-import com.yashdotdev.url_service.dtos.UrlSummaryResponse;
+import com.yashdotdev.url_service.dtos.*;
 import com.yashdotdev.url_service.entity.Url;
 import com.yashdotdev.url_service.exception.UrlNotFoundException;
 import com.yashdotdev.url_service.generator.ShortCodeGenerator;
+import com.yashdotdev.url_service.kafka.CacheEvictProducer;
 import com.yashdotdev.url_service.mapper.UrlMapper;
 import com.yashdotdev.url_service.repository.UrlRepository;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
@@ -28,6 +26,8 @@ public class UrlServiceImpl implements UrlService {
     private final UrlRepository urlRepository;
     private final ShortCodeGenerator shortCodeGenerator;
     private final UrlMapper urlMapper;
+
+    private final CacheEvictProducer cacheEvictProducer;
 
     @Override
     public ShortUrlResponse createShortUrl(
@@ -132,6 +132,58 @@ Click Count  : {}
         );
         return urlRepository.findAllByUserId(userId, pageable)
                 .map(urlMapper::toUrlSummaryResponse);
+    }
+
+    @Override
+    @Transactional
+    public ShortUrlResponse updateUrl(
+            Long id,
+            Long userId,
+            UpdateUrlRequest request
+    ) {
+
+        log.info("""
+
+            Updating URL
+
+            URL ID       : {}
+            User ID      : {}
+            Original URL : {}
+
+            """,
+                id,
+                userId,
+                request.originalUrl()
+        );
+
+        Url url = urlRepository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() ->
+                        new UrlNotFoundException(id)
+                );
+
+        url.setOriginalUrl(request.originalUrl());
+
+        Url updatedUrl = urlRepository.save(url);
+
+        log.info("""
+
+            URL Updated Successfully
+
+            URL ID     : {}
+            Short Code : {}
+
+            """,
+                updatedUrl.getId(),
+                updatedUrl.getShortCode()
+        );
+
+        /*
+         * Evict Redis Cache
+         */
+        cacheEvictProducer.publish(updatedUrl.getShortCode());
+
+        return urlMapper.toShortUrlResponse(updatedUrl);
     }
 
     /**

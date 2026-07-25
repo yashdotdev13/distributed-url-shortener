@@ -1,9 +1,6 @@
 package com.yashdotdev.url_service.controller;
 
-import com.yashdotdev.url_service.dtos.CreateShortUrlRequest;
-import com.yashdotdev.url_service.dtos.ShortUrlResponse;
-import com.yashdotdev.url_service.dtos.UrlDetailsResponse;
-import com.yashdotdev.url_service.dtos.UrlSummaryResponse;
+import com.yashdotdev.url_service.dtos.*;
 import com.yashdotdev.url_service.security.AuthenticatedUser;
 import com.yashdotdev.url_service.security.CurrentUserService;
 import com.yashdotdev.url_service.service.UrlService;
@@ -67,6 +64,27 @@ public class UrlController {
 
     ) {
         return ResponseEntity.ok(urlService.getAllUrls(userId,pageable)
+        );
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ShortUrlResponse> updateUrl(
+
+            @PathVariable("id") Long id,
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid
+            @RequestBody
+            UpdateUrlRequest request
+
+    ) {
+
+        return ResponseEntity.ok(
+                urlService.updateUrl(
+                        id,
+                        userId,
+                        request
+                )
         );
     }
 }
