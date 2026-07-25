@@ -35,4 +35,13 @@ public class ClickEvent {
     @Column(columnDefinition = "TEXT")
     private String referer;
 
+    @Column(name = "browser", length = 50)
+    private String browser;
+
+    @Column(name = "operating_system", length = 50)
+    private String operatingSystem;
+
+    @Column(name = "device_type", length = 30)
+    private String deviceType;
+
 }
