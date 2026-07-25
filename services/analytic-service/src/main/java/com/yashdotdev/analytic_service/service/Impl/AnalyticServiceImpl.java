@@ -4,7 +4,7 @@ import com.yashdotdev.analytic_service.dtos.UserAgentMetadata;
 import com.yashdotdev.analytic_service.entity.raw.ClickEvent;
 import com.yashdotdev.analytic_service.mapper.ClickEventMapper;
 import com.yashdotdev.analytic_service.repository.ClickEventRepository;
-import com.yashdotdev.analytic_service.repository.UrlAnalyticsRepository;
+import com.yashdotdev.analytic_service.service.AnalyticsAggregationService;
 import com.yashdotdev.analytic_service.service.AnalyticsService;
 import com.yashdotdev.analytic_service.service.parser.UserAgentParserService;
 import com.yashdotdev.common.events.ClickEvents;
@@ -19,8 +19,8 @@ public class AnalyticServiceImpl implements AnalyticsService {
 
     private final ClickEventRepository clickEventRepository;
     private final ClickEventMapper clickEventMapper;
-    private final UrlAnalyticsRepository urlAnalyticsRepository;
     private final UserAgentParserService userAgentParserService;
+    private final AnalyticsAggregationService analyticsAggregationService;
 
     @Override
     public void saveClickEvent(ClickEvents event) {
@@ -58,9 +58,14 @@ public class AnalyticServiceImpl implements AnalyticsService {
 
         clickEventRepository.save(clickEvent);
 
-        urlAnalyticsRepository.upsertAnalytics(
+        analyticsAggregationService.aggregate(
+
                 event.shortCode(),
+                metadata.browser(),
+                metadata.deviceType(),
+                metadata.operatingSystem(),
                 event.clickedAt()
+
         );
 
         log.info("""

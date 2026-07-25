@@ -44,25 +44,17 @@ public class RedirectServiceImpl implements RedirectService {
                 shortCode
         );
 
-        /*
-         * Step 1 : Check Redis
-         */
         Optional<Url> cachedUrl = urlCacheService.get(shortCode);
 
         if (cachedUrl.isPresent()) {
-
             Url url = cachedUrl.get();
-
             validateExpiration(url);
 
             publishClickEvent(url, request);
 
             log.info("""
-
                     Returning URL from Redis
-
                     Original URL : {}
-
                     """,
                     url.getOriginalUrl()
             );
@@ -70,9 +62,6 @@ public class RedirectServiceImpl implements RedirectService {
             return url.getOriginalUrl();
         }
 
-        /*
-         * Step 2 : Load from Database
-         */
         Url url = urlRepository
                 .findByShortCodeAndStatus(
                         shortCode,
@@ -84,9 +73,6 @@ public class RedirectServiceImpl implements RedirectService {
 
         validateExpiration(url);
 
-        /*
-         * Step 3 : Cache in Redis
-         */
         urlCacheService.put(url);
 
         publishClickEvent(url, request);
@@ -119,12 +105,12 @@ public class RedirectServiceImpl implements RedirectService {
     ) {
 
         log.info("""
-
-                Publishing Click Event
-
-                Short Code : {}
-
-                """,
+                        
+                        Publishing Click Event
+                        
+                        Short Code : {}
+                        
+                        """,
                 url.getShortCode()
         );
 
@@ -143,6 +129,20 @@ public class RedirectServiceImpl implements RedirectService {
                 )
                 .clickedAt(Instant.now())
                 .build();
+
+        log.info("""
+                        
+                        Click Event Metadata
+                        
+                        User-Agent : {}
+                        IP Address : {}
+                        Referer    : {}
+                        
+                        """,
+                event.userAgent(),
+                event.ipAddress(),
+                event.referer()
+        );
 
         clickEventProducer.publish(event);
     }
