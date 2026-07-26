@@ -30,6 +30,7 @@
         <module>services/api-gateway</module>
 
         <module>services/url-service</module>
+        <module>services/redirect-service</module>
 
         <module>services/analytic-service</module>
 
