@@ -54,7 +54,6 @@ spring:
               predicates:
                 - Path=/api/v1/urls/**
 
-
             - id: redirect-service
               uri: lb://REDIRECT-SERVICE
               predicates:
@@ -111,6 +110,28 @@ resilience4j:
     instances:
       authServiceCircuitBreaker:
         baseConfig: default
+
+rate-limit:
+
+  login:
+    capacity: 5
+    refill-tokens: 5
+    refill-duration-seconds: 60
+
+  register:
+    capacity: 3
+    refill-tokens: 3
+    refill-duration-seconds: 60
+
+  create-url:
+    capacity: 30
+    refill-tokens: 30
+    refill-duration-seconds: 60
+
+  redirect:
+    capacity: 300
+    refill-tokens: 300
+    refill-duration-seconds: 60
 
 logging:
   level:

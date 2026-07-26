@@ -1,13 +1,12 @@
 package com.yashdotdev.api_gateway.rateLimiter;
 
+import lombok.Data;
 
-import lombok.Builder;
+@Data
+public class RateLimitRule {
 
-@Builder
-public record RateLimitRule (
+    private long capacity;
+    private long refillTokens;
+    private long refillDurationSeconds;
 
-
-        Long capacity,
-        Long refillTokens,
-        Long refillDurationSeconds
-){}
+}

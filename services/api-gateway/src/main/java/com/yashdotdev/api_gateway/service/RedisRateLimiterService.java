@@ -41,18 +41,18 @@ public class RedisRateLimiterService implements RateLimiterService {
 
                 """,
                 key,
-                rule.capacity(),
-                rule.refillTokens(),
-                rule.refillDurationSeconds()
+                rule.getCapacity(),
+                rule.getRefillTokens(),
+                rule.getRefillDurationSeconds()
         );
 
         return redisTemplate.execute(
                         tokenBucketScript,
                         List.of(key),
 
-                        String.valueOf(rule.capacity()),
-                        String.valueOf(rule.refillTokens()),
-                        String.valueOf(rule.refillDurationSeconds()),
+                        String.valueOf(rule.getCapacity()),
+                        String.valueOf(rule.getRefillTokens()),
+                        String.valueOf(rule.getRefillDurationSeconds()),
                         String.valueOf(Instant.now().getEpochSecond())
                 )
                 .next()
