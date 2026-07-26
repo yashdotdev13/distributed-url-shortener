@@ -1,6 +1,7 @@
 package com.yashdotdev.redirect_service.service.Impl;
 
 import com.yashdotdev.common.events.ClickEvents;
+import com.yashdotdev.redirect_service.bloom.BloomFilterService;
 import com.yashdotdev.redirect_service.cache.UrlCacheService;
 import com.yashdotdev.redirect_service.entity.Url;
 import com.yashdotdev.redirect_service.enums.UrlStatus;
@@ -27,6 +28,7 @@ public class RedirectServiceImpl implements RedirectService {
     private final UrlCacheService urlCacheService;
     private final ClickEventProducer clickEventProducer;
     private final RequestMetadataExtractor metadataExtractor;
+    private final BloomFilterService bloomFilterService;
 
     @Override
     public String resolveOriginalUrl(
@@ -35,27 +37,54 @@ public class RedirectServiceImpl implements RedirectService {
     ) {
 
         log.info("""
+            Resolving Short URL
+            Short Code : {}
+            """,
+                shortCode
+        );
 
-                Resolving Short URL
+        log.info("""
+            Checking Bloom Filter
+            Short Code : {}
+            """,
+                shortCode
+        );
 
+        if (!bloomFilterService.mightContain(shortCode)) {
+
+            log.warn("""
+                Bloom Filter MISS
                 Short Code : {}
-
+                Returning 404 immediately.
                 """,
+                    shortCode
+            );
+
+            throw new ShortUrlNotFoundException(shortCode);
+        }
+
+        log.info("""
+            Bloom Filter HIT
+            Short Code : {}
+            Continuing lookup.
+            """,
                 shortCode
         );
 
         Optional<Url> cachedUrl = urlCacheService.get(shortCode);
 
         if (cachedUrl.isPresent()) {
+
             Url url = cachedUrl.get();
+
             validateExpiration(url);
 
             publishClickEvent(url, request);
 
             log.info("""
-                    Returning URL from Redis
-                    Original URL : {}
-                    """,
+                Returning URL from Redis
+                Original URL : {}
+                """,
                     url.getOriginalUrl()
             );
 
@@ -74,19 +103,14 @@ public class RedirectServiceImpl implements RedirectService {
         validateExpiration(url);
 
         urlCacheService.put(url);
-
         publishClickEvent(url, request);
 
         log.info("""
-
-                Returning URL from Database
-
-                Original URL : {}
-
-                """,
+            Returning URL from Database
+            Original URL : {}
+            """,
                 url.getOriginalUrl()
         );
-
         return url.getOriginalUrl();
     }
 
