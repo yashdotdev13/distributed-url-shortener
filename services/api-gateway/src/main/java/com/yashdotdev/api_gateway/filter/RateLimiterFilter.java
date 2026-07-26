@@ -2,7 +2,7 @@ package com.yashdotdev.api_gateway.filter;
 
 import com.yashdotdev.api_gateway.constants.RateLimitConstants;
 import com.yashdotdev.api_gateway.exception.ErrorResponseWriter;
-import com.yashdotdev.api_gateway.service.RateLimiterService;
+import com.yashdotdev.api_gateway.service.RedisRateLimiterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class RateLimiterFilter implements GlobalFilter, Ordered {
 
-    private final RateLimiterService rateLimiterService;
+    private final RedisRateLimiterService rateLimiterService;
     private final ErrorResponseWriter errorResponseWriter;
 
     @Override
