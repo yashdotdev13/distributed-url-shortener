@@ -6,12 +6,12 @@ import com.yashdotdev.analytic_service.dtos.dashboard.*;
 import com.yashdotdev.analytic_service.entity.aggregate.BrowserAnalytics;
 import com.yashdotdev.analytic_service.entity.aggregate.DeviceAnalytics;
 import com.yashdotdev.analytic_service.entity.aggregate.OperatingSystemAnalytics;
+import com.yashdotdev.analytic_service.entity.ownership.UrlOwnership;
 import com.yashdotdev.analytic_service.entity.raw.UrlAnalytics;
+import com.yashdotdev.analytic_service.exception.AnalyticsAccessDeniedException;
+import com.yashdotdev.analytic_service.exception.ShortUrlOwnershipNotFoundException;
 import com.yashdotdev.analytic_service.mapper.AnalyticsDashboardMapper;
-import com.yashdotdev.analytic_service.repository.BrowserAnalyticsRepository;
-import com.yashdotdev.analytic_service.repository.DeviceAnalyticsRepository;
-import com.yashdotdev.analytic_service.repository.OperatingSystemAnalyticsRepository;
-import com.yashdotdev.analytic_service.repository.UrlAnalyticsRepository;
+import com.yashdotdev.analytic_service.repository.*;
 import com.yashdotdev.analytic_service.security.AuthenticatedUser;
 import com.yashdotdev.analytic_service.service.AnalyticsDashboardService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ public class AnalyticsDashboardServiceImpl
     private final DeviceAnalyticsRepository deviceAnalyticsRepository;
     private final OperatingSystemAnalyticsRepository
             operatingSystemAnalyticsRepository;
+    private final UrlOwnershipRepository urlOwnershipRepository;
 
     private final AnalyticsDashboardMapper dashboardMapper;
 
@@ -53,13 +54,24 @@ public class AnalyticsDashboardServiceImpl
                 currentUser.userId()
         );
 
+        UrlOwnership ownership =
+                urlOwnershipRepository
+                        .findById(shortCode)
+                        .orElseThrow(() ->
+                                new ShortUrlOwnershipNotFoundException(shortCode)
+                        );
+
+        if (!ownership.getOwnerId().equals(currentUser.userId())) {
+
+            throw new AnalyticsAccessDeniedException(
+                    shortCode
+            );
+        }
+
         UrlAnalytics summary = urlAnalyticsRepository
                 .findByShortCode(shortCode)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Analytics not found for short code : "
-                                        + shortCode
-                        )
+                        new ShortUrlOwnershipNotFoundException(shortCode)
                 );
 
 
