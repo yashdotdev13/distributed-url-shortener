@@ -56,6 +56,7 @@ public class AnalyticServiceImpl implements AnalyticsService {
         clickEvent.setOperatingSystem(metadata.operatingSystem());
         clickEvent.setDeviceType(metadata.deviceType());
 
+
         clickEventRepository.save(clickEvent);
 
         analyticsAggregationService.aggregate(

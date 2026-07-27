@@ -11,4 +11,6 @@ public final class KafkaTopics {
 
     public static final String URL_CREATED_EVENTS =
             "url-created-events";
+
+    public static final String CLICK_EVENTS_DLT = "click-events-dlt";
 }
