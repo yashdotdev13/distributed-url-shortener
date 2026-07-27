@@ -1,17 +1,15 @@
 package com.yashdotdev.api_gateway.filter;
 
-import com.yashdotdev.api_gateway.config.RateLimitProperties;
-import com.yashdotdev.api_gateway.rateLimiter.RateLimitKeyGenerator;
 import com.yashdotdev.api_gateway.rateLimiter.RateLimitResult;
-import com.yashdotdev.api_gateway.rateLimiter.RateLimitRule;
 import com.yashdotdev.api_gateway.rateLimiter.RateLimiterService;
+import com.yashdotdev.api_gateway.rateLimiter.resolver.EndpointRateLimit;
+import com.yashdotdev.api_gateway.rateLimiter.resolver.EndpointRateLimitResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -22,8 +20,9 @@ import reactor.core.publisher.Mono;
 public class RateLimitingFilter
         implements GlobalFilter, Ordered {
 
+    private final EndpointRateLimitResolver resolver;
+
     private final RateLimiterService rateLimiterService;
-    private final RateLimitProperties properties;
 
     @Override
     public Mono<Void> filter(
@@ -31,86 +30,88 @@ public class RateLimitingFilter
             GatewayFilterChain chain
     ) {
 
-        ServerHttpRequest request = exchange.getRequest();
-        String path = request.getURI().getPath();
+        return Mono.just(exchange.getRequest())
+                .flatMap(request -> {
 
-        String ip = request
-                .getRemoteAddress()
-                .getAddress()
-                .getHostAddress();
+                    return resolver.resolve(request)
 
-        RateLimitRule rule = null;
-        String key;
+                            .map(endpointRateLimit ->
 
-        if (path.startsWith("/api/v1/auth/login")) {
-            rule = properties.getLogin();
-            key = RateLimitKeyGenerator.login(ip);
-        }
+                                    rateLimiterService
+                                            .allowRequest(
+                                                    endpointRateLimit.getRedisKey(),
+                                                    endpointRateLimit.getRule()
+                                            )
+                                            .flatMap(result ->
+                                                    handleResult(
+                                                            exchange,
+                                                            chain,
+                                                            result
+                                                    )
+                                            )
 
+                            )
 
-        else if (path.startsWith("/api/v1/auth/register")) {
-            rule = properties.getRegister();
-            key = RateLimitKeyGenerator.register(ip);
-        }
+                            .orElseGet(() ->
+                                    chain.filter(exchange)
+                            );
 
-        else if (path.startsWith("/api/v1/r/")) {
-            rule = properties.getRedirect();
-            key = RateLimitKeyGenerator.redirect(ip);
-        } else {
-            key = null;
-        }
+                });
 
-        if (rule == null) {
+    }
+
+    private Mono<Void> handleResult(
+            ServerWebExchange exchange,
+            GatewayFilterChain chain,
+            RateLimitResult result
+    ) {
+
+        if (result.allowed()) {
+
             return chain.filter(exchange);
         }
 
-        log.info("""
-                Applying Rate Limit
-                Path : {}
-                Key  : {}
+        log.warn("""
+
+                Rate Limit Exceeded
+
+                Remaining Tokens : {}
+                Retry After      : {} sec
 
                 """,
-                path,
-                key
+                result.remainingTokens(),
+                result.retryAfterSeconds()
         );
 
-        return rateLimiterService
-                .allowRequest(
-                        key,
-                        rule
-                )
-                .flatMap(result -> {
-                    if (result.allowed()) {
-                        return chain.filter(exchange);
-                    }
-                    log.warn("""
-                            Rate Limit Exceeded
+        exchange.getResponse()
+                .setStatusCode(
+                        HttpStatus.TOO_MANY_REQUESTS
+                );
 
-                            Key : {}
-                            """,
-                            key
-                    );
+        exchange.getResponse()
+                .getHeaders()
+                .add(
+                        "Retry-After",
+                        String.valueOf(
+                                result.retryAfterSeconds()
+                        )
+                );
 
-                    exchange.getResponse()
-                            .setStatusCode(
-                                    HttpStatus.TOO_MANY_REQUESTS
-                            );
-                    exchange.getResponse()
-                            .getHeaders()
-                            .add(
-                                    "Retry-After",
-                                    String.valueOf(
-                                            result.retryAfterSeconds()
-                                    )
-                            );
-                    return exchange
-                            .getResponse()
-                            .setComplete();
-                });
+        exchange.getResponse()
+                .getHeaders()
+                .add(
+                        "X-RateLimit-Remaining",
+                        String.valueOf(
+                                result.remainingTokens()
+                        )
+                );
+
+        return exchange.getResponse().setComplete();
     }
 
     @Override
     public int getOrder() {
+
         return -100;
     }
 }

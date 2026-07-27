@@ -1,10 +1,10 @@
-package com.yashdotdev.api_gateway.resolver.Impl;
+package com.yashdotdev.api_gateway.rateLimiter.resolver.Impl;
 
 
 import com.yashdotdev.api_gateway.config.RateLimitProperties;
 import com.yashdotdev.api_gateway.rateLimiter.RateLimitKeyGenerator;
-import com.yashdotdev.api_gateway.resolver.EndpointRateLimit;
-import com.yashdotdev.api_gateway.resolver.EndpointRateLimitResolver;
+import com.yashdotdev.api_gateway.rateLimiter.resolver.EndpointRateLimit;
+import com.yashdotdev.api_gateway.rateLimiter.resolver.EndpointRateLimitResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;

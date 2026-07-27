@@ -1,4 +1,4 @@
-package com.yashdotdev.api_gateway.resolver;
+package com.yashdotdev.api_gateway.rateLimiter.resolver;
 
 import com.yashdotdev.api_gateway.rateLimiter.RateLimitRule;
 import lombok.AllArgsConstructor;
