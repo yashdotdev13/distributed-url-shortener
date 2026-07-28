@@ -78,6 +78,7 @@ eureka:
     prefer-ip-address: true
 
 management:
+
   endpoints:
     web:
       exposure:
@@ -91,6 +92,15 @@ management:
     metrics:
       export:
         enabled: true
+
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
 
 resilience4j:
   circuitbreaker:
@@ -134,6 +144,10 @@ rate-limit:
     refill-duration-seconds: 60
 
 logging:
+
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
   level:
     org.springframework.cloud.gateway: INFO
     reactor.netty: INFO

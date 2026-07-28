@@ -1,4 +1,4 @@
-# 🚀 Distributed URL Shortener
+#  Distributed URL Shortener
 
 > A production-inspired distributed URL shortening platform built with **Spring Boot, Kafka, Redis, PostgreSQL, and Spring Cloud**, focusing on scalability, resiliency, and real-world distributed systems engineering.
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🌍 Project Vision
+##  Project Vision
 
 This project goes beyond building a simple URL shortener.
 
@@ -27,7 +27,7 @@ Instead of focusing solely on shortening URLs, the project emphasizes **performa
 ---
 
 
-## 📖 Why This Project?
+##  Why This Project?
 
 Most URL shortener tutorials focus on generating a short URL and redirecting users to the original destination. While that demonstrates the core functionality, it does not address the engineering challenges involved in building a system that can operate reliably under real-world traffic.
 
@@ -47,7 +47,7 @@ The objective is to understand and implement concepts such as:
 Rather than treating each technology as an isolated feature, every component in this project exists to solve a specific engineering problem commonly encountered in production systems.
 
 
-## 🎯 Project Objectives
+##  Project Objectives
 
 The long-term goal of this project is to build a production-inspired distributed platform while learning the architectural patterns behind scalable backend systems.
 
@@ -66,7 +66,7 @@ Current objectives include:
 
 ---
 
-# 🏗️ System Architecture
+#  System Architecture
 
 The Distributed URL Shortener follows a microservices-based architecture where each service has a single responsibility and communicates through synchronous REST APIs and asynchronous Kafka events.
 
@@ -124,7 +124,7 @@ The Distributed URL Shortener follows a microservices-based architecture where e
 - Retry and Dead Letter Queue (DLQ) improve resilience during message processing failures.
 
 
-# 🧩 Microservices
+#  Microservices
 
 | Service | Responsibility |
 |----------|----------------|
@@ -138,13 +138,13 @@ The Distributed URL Shortener follows a microservices-based architecture where e
 
 
 
-# ✨ Key Features & Engineering Decisions
+# Key Features & Engineering Decisions
 
 The primary objective of this project is not simply to shorten URLs, but to implement production-inspired architectural patterns that improve scalability, reliability, and maintainability.
 
 ---
 
-## 🔐 JWT Authentication & Authorization
+##  JWT Authentication & Authorization
 
 Authentication is implemented using stateless JWT access tokens with refresh token rotation.
 
@@ -156,7 +156,7 @@ Authentication is implemented using stateless JWT access tokens with refresh tok
 
 ---
 
-## 🚪 API Gateway
+##  API Gateway
 
 All client requests pass through a centralized API Gateway.
 
@@ -187,7 +187,7 @@ Frequently accessed URLs are cached in Redis.
 
 ---
 
-## 🌸 Bloom Filter
+##  Bloom Filter
 
 Before querying the database, incoming short codes are validated using a Bloom Filter.
 
@@ -199,7 +199,7 @@ Instead of querying PostgreSQL for every invalid request, the Bloom Filter filte
 
 ---
 
-## 📨 Event-Driven Analytics
+##  Event-Driven Analytics
 
 The redirect service publishes click events asynchronously using Apache Kafka.
 
@@ -213,7 +213,7 @@ By decoupling analytics from the request path, users receive fast redirects whil
 
 ---
 
-## 📊 CQRS-Inspired Analytics
+##  CQRS-Inspired Analytics
 
 Analytics processing is separated from request processing.
 
@@ -225,7 +225,7 @@ Analytics processing is separated from request processing.
 
 ---
 
-## 🛡️ Distributed Token Bucket Rate Limiter
+## 🛡 Distributed Token Bucket Rate Limiter
 
 A Redis-backed Token Bucket algorithm protects public endpoints from abuse.
 
@@ -242,7 +242,7 @@ Unlike in-memory rate limiting, Redis ensures consistent enforcement across mult
 
 ---
 
-## 🔄 Kafka Retry & Dead Letter Queue (DLQ)
+##  Kafka Retry & Dead Letter Queue (DLQ)
 
 Message processing failures are handled using Spring Kafka's retry mechanism.
 
@@ -274,7 +274,7 @@ DLQ
 
 ---
 
-## 📈 Analytics Dashboard
+##  Analytics Dashboard
 
 Aggregated analytics are exposed through dedicated APIs.
 
@@ -290,7 +290,7 @@ The dashboard is built using pre-aggregated analytics rather than scanning raw c
 
 ---
 
-## 🧪 Performance Benchmarking
+##  Performance Benchmarking
 
 Performance testing is performed using **k6**, with metrics collected using **Prometheus** and visualized in **Grafana**.
 
@@ -310,13 +310,13 @@ The issue was resolved by introducing a unique JWT ID (`jti`) claim for every re
 This demonstrates the importance of load testing not only for measuring performance but also for identifying concurrency issues that functional testing may not expose.
 
 
-# 🔄 Request Flow & Event Flow
+#  Request Flow & Event Flow
 
 This section illustrates how requests travel through the system and how individual services collaborate to provide a scalable, resilient, and low-latency URL shortening platform.
 
 ---
 
-# 🔐 Authentication Flow
+#  Authentication Flow
 
 ```text
                 Client
@@ -353,7 +353,7 @@ This section illustrates how requests travel through the system and how individu
 
 ---
 
-# ✂️ URL Creation Flow
+# ✂ URL Creation Flow
 
 ```text
                 Client
@@ -388,7 +388,7 @@ This section illustrates how requests travel through the system and how individu
 
 ---
 
-# 🚀 Redirect Flow
+#  Redirect Flow
 
 ```text
                   Client
@@ -434,7 +434,7 @@ Analytics processing never blocks user redirects.
 
 ---
 
-# 📊 Analytics Processing Flow
+#  Analytics Processing Flow
 
 ```text
             Redirect Service
@@ -468,7 +468,7 @@ All analytics are processed asynchronously.
 
 ---
 
-# 🔄 Kafka Retry & Dead Letter Queue
+#  Kafka Retry & Dead Letter Queue
 
 ```text
                 Kafka
@@ -508,7 +508,7 @@ All analytics are processed asynchronously.
 
 ---
 
-# 🛡️ Distributed Rate Limiting
+#  Distributed Rate Limiting
 
 ```text
                 Client
@@ -534,7 +534,7 @@ The rate limiter is implemented using Redis and Lua scripts to ensure atomic tok
 
 ---
 
-# 🌸 Bloom Filter Flow
+#  Bloom Filter Flow
 
 ```text
           Redirect Request
