@@ -9,25 +9,14 @@ RUN mvn clean package \
     -am \
     -DskipTests
 
-
 FROM eclipse-temurin:21-jre
 
-LABEL org.opencontainers.image.title="distributed-url-shortener-auth-service"
-LABEL org.opencontainers.image.description="Authentication Service"
-LABEL org.opencontainers.image.version="1.0.0"
-
-RUN addgroup --system spring && adduser --system spring --ingroup spring
+LABEL maintainer="Yash Chauhan"
 
 WORKDIR /app
 
-COPY --from=builder \
-/workspace/services/auth-service/target/*.jar \
-app.jar
-
-RUN chown -R spring:spring /app
-
-USER spring
+COPY --from=builder /workspace/services/auth-service/target/app.jar app.jar
 
 EXPOSE 8091
 
-ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","app.jar"]

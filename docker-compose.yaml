@@ -140,9 +140,34 @@ services:
       jaeger:
         condition: service_started
 
+
+  auth-service:
+
+    image: ${DOCKER_USERNAME}/distributed-url-shortener-auth-service:${IMAGE_TAG}
+
+    container_name: ${COMPOSE_PROJECT_NAME}-auth-service
+
+    restart: unless-stopped
+
+    ports:
+      - "8091:8091"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+
+      postgres:
+        condition: service_healthy
+
+      discovery-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
     networks:
       - backend-network
-
 
 networks:
 
