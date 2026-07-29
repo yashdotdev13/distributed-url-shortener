@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: auth-service
+  namespace: distributed-url-shortener
+
+  labels:
+    app: auth-service
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: auth-service
+
+  template:
+
+    metadata:
+      labels:
+        app: auth-service
+
+    spec:
+
+      containers:
+
+        - name: auth-service
+
+          image: yash01er/distributed-url-shortener-auth-service:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8082
+
+          env:
+
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: SPRING_PROFILES_ACTIVE
+
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: JWT_SECRET
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_PASSWORD
+
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: POSTGRES_HOST
+
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: POSTGRES_PORT
+
+            - name: AUTH_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: AUTH_DB
+
+            - name: EUREKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: EUREKA_SERVER
+
+            - name: JAEGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: JAEGER_ENDPOINT
+
+          readinessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8082
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          livenessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8082
+
+            initialDelaySeconds: 40
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+
+            limits:
+              cpu: "1"
+              memory: "1Gi"
