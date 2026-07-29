@@ -9,27 +9,14 @@ RUN mvn clean package \
     -am \
     -DskipTests
 
-
 FROM eclipse-temurin:21-jre
 
-LABEL org.opencontainers.image.title="distributed-url-shortener-api-gateway"
-LABEL org.opencontainers.image.description="API Gateway"
-LABEL org.opencontainers.image.version="1.0.0"
-LABEL org.opencontainers.image.vendor="Yash Chauhan"
-
-RUN addgroup --system spring && \
-    adduser --system spring --ingroup spring
+LABEL maintainer="Yash Chauhan"
 
 WORKDIR /app
 
-COPY --from=builder \
-    /workspace/services/api-gateway/target/*.jar \
-    app.jar
-
-RUN chown -R spring:spring /app
-
-USER spring
+COPY --from=builder /workspace/services/api-gateway/target/app.jar app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","app.jar"]
