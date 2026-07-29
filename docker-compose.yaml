@@ -196,6 +196,39 @@ services:
       jaeger:
         condition: service_started
 
+
+
+  redirect-service:
+
+    image: ${DOCKER_USERNAME}/distributed-url-shortener-redirect-service:${IMAGE_TAG}
+
+    container_name: ${COMPOSE_PROJECT_NAME}-redirect-service
+
+    restart: unless-stopped
+
+    ports:
+      - "8093:8093"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+
+      postgres:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
+      kafka:
+        condition: service_started
+
+      discovery-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
     networks:
       - backend-network
 
