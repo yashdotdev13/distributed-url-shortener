@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: postgres
+  namespace: distributed-url-shortener
+
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres
+
+  template:
+
+    metadata:
+
+      labels:
+        app: postgres
+
+    spec:
+
+      containers:
+
+        - name: postgres
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+            - name: postgres-initdb
+              mountPath: /docker-entrypoint-initdb.d
+
+          readinessProbe:
+
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          livenessProbe:
+
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+
+            initialDelaySeconds: 30
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+
+      volumes:
+
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+
+        - name: postgres-initdb
+          configMap:
+            name: postgres-initdb

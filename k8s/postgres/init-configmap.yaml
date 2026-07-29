@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: postgres-initdb
+  namespace: distributed-url-shortener
+
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+data:
+
+  init.sql: |
+
+    CREATE DATABASE url_auth_db;
+
+    CREATE DATABASE url_service_db;
+
+    CREATE DATABASE analytics_service_db;
