@@ -141,6 +141,13 @@ services:
         condition: service_started
 
 
+    networks:
+      - backend-network
+
+
+
+
+
   auth-service:
 
     image: ${DOCKER_USERNAME}/distributed-url-shortener-auth-service:${IMAGE_TAG}
@@ -165,6 +172,10 @@ services:
 
       jaeger:
         condition: service_started
+
+
+    networks:
+      - backend-network
 
 
 
@@ -195,6 +206,10 @@ services:
 
       jaeger:
         condition: service_started
+
+
+    networks:
+      - backend-network
 
 
 
@@ -230,6 +245,10 @@ services:
         condition: service_started
 
 
+    networks:
+      - backend-network
+
+
   analytic-service:
 
     image: ${DOCKER_USERNAME}/distributed-url-shortener-analytic-service:${IMAGE_TAG}
@@ -261,6 +280,69 @@ services:
     networks:
       - backend-network
 
+
+
+
+  prometheus:
+
+    image: prom/prometheus:latest
+
+    container_name: distributed-url-shortener-prometheus
+
+    restart: unless-stopped
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    depends_on:
+
+      discovery-server:
+        condition: service_started
+
+      api-gateway:
+        condition: service_started
+
+      auth-service:
+        condition: service_started
+
+      url-service:
+        condition: service_started
+
+      redirect-service:
+        condition: service_started
+
+      analytic-service:
+        condition: service_started
+
+    networks:
+      - backend-network
+
+
+
+
+  grafana:
+
+    image: grafana/grafana:latest
+    container_name: distributed-url-shortener-grafana
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+
+      prometheus:
+        condition: service_started
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+    networks:
+      - backend-network
+
 networks:
 
   backend-network:
@@ -268,7 +350,7 @@ networks:
 
 
 volumes:
-
   postgres-data:
   redis-data:
   kafka-data:
+  grafana-data:

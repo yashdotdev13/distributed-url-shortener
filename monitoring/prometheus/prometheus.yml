@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: discovery-server
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - discovery-server:8761
+
+  - job_name: api-gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - api-gateway:8081
+
+  - job_name: auth-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - auth-service:8091
+
+  - job_name: url-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - url-service:8092
+
+  - job_name: redirect-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - redirect-service:8093
+
+  - job_name: analytic-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - analytic-service:8094
