@@ -229,6 +229,35 @@ services:
       jaeger:
         condition: service_started
 
+
+  analytic-service:
+
+    image: ${DOCKER_USERNAME}/distributed-url-shortener-analytic-service:${IMAGE_TAG}
+
+    container_name: ${COMPOSE_PROJECT_NAME}-analytic-service
+
+    restart: unless-stopped
+
+    ports:
+      - "8094:8094"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+
+      postgres:
+        condition: service_healthy
+
+      kafka:
+        condition: service_started
+
+      discovery-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
     networks:
       - backend-network
 

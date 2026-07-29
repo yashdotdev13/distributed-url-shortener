@@ -9,9 +9,9 @@ RUN mvn clean package \
     -am \
     -DskipTests
 
-
-
 FROM eclipse-temurin:21-jre
+
+LABEL maintainer="Yash Chauhan"
 
 LABEL org.opencontainers.image.title="distributed-url-shortener-analytic-service"
 LABEL org.opencontainers.image.description="Analytics Service"
@@ -23,7 +23,7 @@ RUN addgroup --system spring && \
 WORKDIR /app
 
 COPY --from=builder \
-    /workspace/services/analytic-service/target/*.jar \
+    /workspace/services/analytic-service/target/app.jar \
     app.jar
 
 RUN chown -R spring:spring /app
@@ -32,4 +32,4 @@ USER spring
 
 EXPOSE 8094
 
-ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","app.jar"]
