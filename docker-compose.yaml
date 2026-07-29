@@ -3,6 +3,7 @@ services:
   postgres:
 
     image: ${POSTGRES_IMAGE}:${POSTGRES_VERSION}
+
     container_name: ${COMPOSE_PROJECT_NAME}-postgres
 
     restart: unless-stopped
@@ -19,7 +20,7 @@ services:
       - ./init-db:/docker-entrypoint-initdb.d
 
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -31,7 +32,9 @@ services:
   redis:
 
     image: ${REDIS_IMAGE}:${REDIS_VERSION}
+
     container_name: ${COMPOSE_PROJECT_NAME}-redis
+
     restart: unless-stopped
 
     command:
@@ -46,7 +49,7 @@ services:
       - redis-data:/data
 
     healthcheck:
-      test: ["CMD","redis-cli","ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -54,12 +57,12 @@ services:
     networks:
       - backend-network
 
-
-
   kafka:
 
     image: ${KAFKA_IMAGE}:${KAFKA_VERSION}
+
     container_name: ${COMPOSE_PROJECT_NAME}-kafka
+
     restart: unless-stopped
 
     ports:
@@ -68,37 +71,37 @@ services:
     environment:
 
       KAFKA_NODE_ID: 1
+
       KAFKA_PROCESS_ROLES: broker,controller
+
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
 
     volumes:
       - kafka-data:/var/lib/kafka/data
 
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1 || exit 1"
-        ]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 40s
-
     networks:
       - backend-network
 
-
   jaeger:
+
     image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
+
     container_name: ${COMPOSE_PROJECT_NAME}-jaeger
+
     restart: unless-stopped
 
     ports:
@@ -106,27 +109,33 @@ services:
       - "4317:4317"
       - "4318:4318"
 
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--spider",
-          "-q",
-          "http://localhost:16686"
-        ]
-      interval: 20s
-      timeout: 10s
-      retries: 10
+    networks:
+      - backend-network
+
+  discovery-server:
+
+    image: ${DOCKER_USERNAME}/distributed-url-shortener-discovery-server:${IMAGE_TAG}
+
+    container_name: ${COMPOSE_PROJECT_NAME}-discovery-server
+
+    restart: unless-stopped
+
+    ports:
+      - "8761:8761"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+      jaeger:
+        condition: service_started
 
     networks:
       - backend-network
 
-
 networks:
 
   backend-network:
-
     driver: bridge
 
 

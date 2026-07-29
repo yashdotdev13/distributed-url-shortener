@@ -8,51 +8,74 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-
 	<parent>
-
 		<groupId>com.yashdotdev</groupId>
 		<artifactId>distributed-url-shortener</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
-
 	</parent>
 
-
 	<artifactId>discovery-server</artifactId>
+
 	<name>Discovery Server</name>
+
 	<description>
 		Eureka Discovery Server for Distributed URL Shortener
 	</description>
 
-
 	<dependencies>
 
+		<!-- Eureka Server -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 		</dependency>
 
+		<!-- Actuator -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<!-- Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
-
 	<build>
+
+		<finalName>app</finalName>
+
 		<plugins>
+
 			<plugin>
+
 				<groupId>org.springframework.boot</groupId>
+
 				<artifactId>spring-boot-maven-plugin</artifactId>
+
+				<executions>
+
+					<execution>
+
+						<goals>
+
+							<goal>repackage</goal>
+
+						</goals>
+
+					</execution>
+
+				</executions>
+
 			</plugin>
+
 		</plugins>
+
 	</build>
 
 </project>

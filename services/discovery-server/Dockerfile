@@ -15,10 +15,8 @@ LABEL maintainer="Yash Chauhan"
 
 WORKDIR /app
 
-COPY --from=builder \
-/workspace/services/discovery-server/target/*.jar \
-app.jar
+COPY --from=builder /workspace/services/discovery-server/target/app.jar app.jar
 
 EXPOSE 8761
 
-ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","app.jar"]
