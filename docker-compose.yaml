@@ -82,6 +82,38 @@ services:
     networks:
       - backend-network
 
+
+
+
+  kafka-ui:
+
+    image: provectuslabs/kafka-ui:latest
+
+    container_name: ${COMPOSE_PROJECT_NAME}-kafka-ui
+
+    restart: unless-stopped
+
+    ports:
+      - "8088:8080"
+
+    environment:
+
+      KAFKA_CLUSTERS_0_NAME: local
+
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+      KAFKA_CLUSTERS_0_READONLY: false
+
+      DYNAMIC_CONFIG_ENABLED: true
+
+    depends_on:
+
+      kafka:
+        condition: service_started
+
+    networks:
+      - backend-network
+
   jaeger:
 
     image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
