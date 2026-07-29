@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: redirect-service
+  namespace: distributed-url-shortener
+
+  labels:
+    app: redirect-service
+    app.kubernetes.io/name: redirect-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: redirect-service
+
+  template:
+
+    metadata:
+      labels:
+        app: redirect-service
+
+    spec:
+
+      containers:
+
+        - name: redirect-service
+
+          image: yash01er/distributed-url-shortener-redirect-service:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8093
+
+          env:
+
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: SPRING_PROFILES_ACTIVE
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: POSTGRES_PASSWORD
+
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: POSTGRES_HOST
+
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: POSTGRES_PORT
+
+            - name: URL_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: URL_DB
+
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: REDIS_HOST
+
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: REDIS_PORT
+
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: EUREKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: EUREKA_SERVER
+
+            - name: JAEGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: JAEGER_ENDPOINT
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8093
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8093
+
+            initialDelaySeconds: 40
+            periodSeconds: 20
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+
+            limits:
+              cpu: "1"
+              memory: "1Gi"
