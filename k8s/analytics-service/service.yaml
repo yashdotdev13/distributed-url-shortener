@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: analytics-service
+  namespace: distributed-url-shortener
+
+  labels:
+    app: analytics-service
+    app.kubernetes.io/name: analytics-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  selector:
+    app: analytics-service
+
+  ports:
+    - name: http
+      port: 8094
+      targetPort: 8094
+
+  type: ClusterIP

@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: auth-service
+  name: analytics-service
   namespace: distributed-url-shortener
 
   labels:
-    app: auth-service
-    app.kubernetes.io/name: auth-service
+    app: analytics-service
+    app.kubernetes.io/name: analytics-service
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: distributed-url-shortener
 
@@ -17,26 +17,26 @@ spec:
 
   selector:
     matchLabels:
-      app: auth-service
+      app: analytics-service
 
   template:
 
     metadata:
       labels:
-        app: auth-service
+        app: analytics-service
 
     spec:
 
       containers:
 
-        - name: auth-service
+        - name: analytics-service
 
-          image: yash01er/distributed-url-shortener-auth-service:latest
+          image: yash01er/distributed-url-shortener-analytic-service:latest
 
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 8091
+            - containerPort: 8094
 
           env:
 
@@ -45,12 +45,6 @@ spec:
                 secretKeyRef:
                   name: distributed-url-shortener-secret
                   key: SPRING_PROFILES_ACTIVE
-
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: distributed-url-shortener-secret
-                  key: JWT_SECRET
 
             - name: POSTGRES_USER
               valueFrom:
@@ -76,11 +70,17 @@ spec:
                   name: distributed-url-shortener-config
                   key: POSTGRES_PORT
 
-            - name: AUTH_DB
+            - name: ANALYTICS_DB
               valueFrom:
                 configMapKeyRef:
                   name: distributed-url-shortener-config
-                  key: AUTH_DB
+                  key: ANALYTICS_DB
+
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
 
             - name: EUREKA_SERVER
               valueFrom:
@@ -95,29 +95,23 @@ spec:
                   key: JAEGER_ENDPOINT
 
           readinessProbe:
-
             httpGet:
               path: /actuator/health
-              port: 8091
-
+              port: 8094
             initialDelaySeconds: 20
             periodSeconds: 10
 
           livenessProbe:
-
             httpGet:
               path: /actuator/health
-              port: 8091
-
+              port: 8094
             initialDelaySeconds: 40
             periodSeconds: 20
 
           resources:
-
             requests:
               cpu: "250m"
               memory: "512Mi"
-
             limits:
               cpu: "1"
               memory: "1Gi"
