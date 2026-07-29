@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: distributed-url-shortener-config
+  namespace: distributed-url-shortener
+
+  labels:
+    app.kubernetes.io/name: distributed-url-shortener
+    app.kubernetes.io/part-of: distributed-url-shortener
+    app.kubernetes.io/managed-by: kubectl
+
+data:
+
+  SPRING_PROFILES_ACTIVE: "docker"
+
+  EUREKA_SERVER: "http://discovery-server:8761/eureka/"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+  JAEGER_ENDPOINT: "http://jaeger:4318/v1/traces"
+
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+
+  AUTH_DB: "url_auth_db"
+  URL_DB: "url_service_db"
+  ANALYTICS_DB: "analytics_service_db"

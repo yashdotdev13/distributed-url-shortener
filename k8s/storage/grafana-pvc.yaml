@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: grafana-pvc
+  namespace: distributed-url-shortener
+
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  accessModes:
+    - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 2Gi
