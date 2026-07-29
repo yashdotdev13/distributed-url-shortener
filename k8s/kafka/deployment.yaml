@@ -12,7 +12,6 @@ metadata:
     app.kubernetes.io/part-of: distributed-url-shortener
 
 spec:
-
   replicas: 1
 
   selector:
@@ -20,30 +19,22 @@ spec:
       app: kafka
 
   template:
-
     metadata:
-
       labels:
         app: kafka
 
     spec:
-
       containers:
-
         - name: kafka
 
           image: apache/kafka:3.7.0
-
           imagePullPolicy: IfNotPresent
 
           ports:
-
             - containerPort: 9092
-
             - containerPort: 9093
 
           env:
-
             - name: KAFKA_NODE_ID
               value: "1"
 
@@ -58,6 +49,9 @@ spec:
 
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
+
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
 
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
@@ -75,12 +69,10 @@ spec:
               value: "1"
 
           volumeMounts:
-
             - name: kafka-storage
-              mountPath: /var/lib/kafka/data
+              mountPath: /tmp/kafka-logs
 
           resources:
-
             requests:
               cpu: "500m"
               memory: "1Gi"
@@ -90,9 +82,6 @@ spec:
               memory: "2Gi"
 
       volumes:
-
         - name: kafka-storage
-
           persistentVolumeClaim:
-
             claimName: kafka-pvc

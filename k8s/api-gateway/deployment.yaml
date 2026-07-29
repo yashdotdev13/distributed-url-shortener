@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: api-gateway
+  namespace: distributed-url-shortener
+
+  labels:
+    app: api-gateway
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: api-gateway
+
+  template:
+
+    metadata:
+      labels:
+        app: api-gateway
+
+    spec:
+
+      containers:
+
+        - name: api-gateway
+
+          image: yash01er/distributed-url-shortener-api-gateway:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8081
+
+          env:
+
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: SPRING_PROFILES_ACTIVE
+
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: JWT_SECRET
+
+            - name: EUREKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: EUREKA_SERVER
+
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: REDIS_HOST
+
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: REDIS_PORT
+
+            - name: JAEGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: JAEGER_ENDPOINT
+
+          readinessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8081
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          livenessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8081
+
+            initialDelaySeconds: 40
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+
+            limits:
+              cpu: "1"
+              memory: "1Gi"

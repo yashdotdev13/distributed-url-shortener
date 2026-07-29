@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: discovery-server
+  namespace: distributed-url-shortener
+
+  labels:
+    app: discovery-server
+    app.kubernetes.io/name: discovery-server
+    app.kubernetes.io/component: discovery
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: discovery-server
+
+  template:
+
+    metadata:
+
+      labels:
+        app: discovery-server
+
+    spec:
+
+      containers:
+
+        - name: discovery-server
+
+          image: yash01er/distributed-url-shortener-discovery-server:v1.0.0
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+
+            - containerPort: 8761
+
+          env:
+
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                secretKeyRef:
+                  name: distributed-url-shortener-secret
+                  key: SPRING_PROFILES_ACTIVE
+
+            - name: MANAGEMENT_OTLP_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: distributed-url-shortener-config
+                  key: JAEGER_ENDPOINT
+
+          readinessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8761
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          livenessProbe:
+
+            httpGet:
+              path: /actuator/health
+              port: 8761
+
+            initialDelaySeconds: 40
+            periodSeconds: 20
+
+          resources:
+
+            requests:
+              cpu: 200m
+              memory: 512Mi
+
+            limits:
+              cpu: 1
+              memory: 1Gi

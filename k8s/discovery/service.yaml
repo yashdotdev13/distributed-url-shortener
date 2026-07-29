@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: discovery-server
+  namespace: distributed-url-shortener
+
+  labels:
+    app: discovery-server
+    app.kubernetes.io/name: discovery-server
+    app.kubernetes.io/component: discovery
+    app.kubernetes.io/part-of: distributed-url-shortener
+
+spec:
+
+  selector:
+    app: discovery-server
+
+  ports:
+
+    - name: http
+      port: 8761
+      targetPort: 8761
+
+  type: ClusterIP
