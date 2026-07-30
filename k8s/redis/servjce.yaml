@@ -3,7 +3,7 @@ kind: Service
 
 metadata:
   name: redis
-
+  namespace: distributed-url-shortener
 spec:
   selector:
     app: redis

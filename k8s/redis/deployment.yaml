@@ -3,6 +3,7 @@ kind: Deployment
 
 metadata:
   name: redis
+  namespace: distributed-url-shortener
 
 spec:
   replicas: 1

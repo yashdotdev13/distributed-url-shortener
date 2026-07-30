@@ -2,7 +2,6 @@ server:
   port: 8081
 
 spring:
-
   application:
     name: api-gateway
 
@@ -14,83 +13,74 @@ spring:
 
   cloud:
     gateway:
-      server:
-        webflux:
-          metrics:
-            enabled: true
 
-          default-filters:
-            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+      metrics:
+        enabled: true
 
-          globalcors:
-            add-to-simple-url-handler-mapping: true
-            cors-configurations:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
-              '[/**]':
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
 
-                allowedOrigins:
-                  - "http://localhost:3000"
+      routes:
 
-                allowedMethods:
-                  - GET
-                  - POST
-                  - PUT
-                  - DELETE
-                  - OPTIONS
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authServiceCircuitBreaker
+                fallbackUri: forward:/fallback/auth
 
-                allowedHeaders: "*"
-                allowCredentials: true
+        - id: url-service
+          uri: lb://URL-SERVICE
+          predicates:
+            - Path=/api/v1/urls/**
 
-          routes:
+        - id: redirect-service
+          uri: lb://REDIRECT-SERVICE
+          predicates:
+            - Path=/api/v1/r/**
 
-            - id: auth-service
-              uri: lb://AUTH-SERVICE
-              predicates:
-                - Path=/api/v1/auth/**
-              filters:
-                - name: CircuitBreaker
-                  args:
-                    name: authServiceCircuitBreaker
-                    fallbackUri: forward:/fallback/auth
-
-            - id: url-service
-              uri: lb://URL-SERVICE
-              predicates:
-                - Path=/api/v1/urls/**
-
-            - id: redirect-service
-              uri: lb://REDIRECT-SERVICE
-              predicates:
-                - Path=/api/v1/r/**
-
-            - id: analytic-service
-              uri: lb://ANALYTIC-SERVICE
-              predicates:
-                - Path=/api/v1/analytics/**
+        - id: analytic-service
+          uri: lb://ANALYTIC-SERVICE
+          predicates:
+            - Path=/api/v1/analytics/**
 
 jwt:
   secretKey: ThisIsMyVeryLongSecretKeyForDistributedUrlShortenerApplication123456789
 
-
 eureka:
   client:
-
     service-url:
       defaultZone: http://discovery-server:8761/eureka/
-
     register-with-eureka: true
     fetch-registry: true
 
   instance:
     prefer-ip-address: true
 
-
 management:
-  endpoints:
 
+  endpoints:
     web:
       exposure:
-        include: health,info,prometheus,gateway,circuitbreakers,circuitbreakerevents
+        include: "*"
 
   endpoint:
     health:
@@ -101,8 +91,6 @@ management:
       export:
         enabled: true
 
-
-
   tracing:
     enabled: true
     sampling:
@@ -112,12 +100,10 @@ management:
     tracing:
       endpoint: http://jaeger:4318/v1/traces
 
-
 resilience4j:
   circuitbreaker:
     configs:
       default:
-
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 10
         minimumNumberOfCalls: 5
@@ -131,12 +117,9 @@ resilience4j:
 
     instances:
       authServiceCircuitBreaker:
-
         baseConfig: default
 
-
 rate-limit:
-
   login:
     capacity: 5
     refill-tokens: 5
@@ -157,13 +140,13 @@ rate-limit:
     refill-tokens: 300
     refill-duration-seconds: 60
 
-
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
   level:
-
-    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.route: TRACE
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
     reactor.netty: INFO
     io.github.resilience4j: INFO
