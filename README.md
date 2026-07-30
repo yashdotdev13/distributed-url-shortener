@@ -569,3 +569,197 @@ The architecture follows several distributed system design principles:
 - Fault Tolerance
 - Horizontal Scalability
 - Production-Inspired Architecture
+
+---
+
+# 🚀 Getting Started
+
+This project can be run either locally using Docker Compose or on a Kubernetes cluster using Minikube.
+
+## Prerequisites
+
+Ensure the following tools are installed before running the project.
+
+| Tool | Version |
+|------|---------|
+| Java | 21+ |
+| Maven | 3.9+ |
+| Docker | Latest |
+| Kubernetes | 1.30+ |
+| Minikube | Latest |
+| kubectl | Latest |
+| Git | Latest |
+
+---
+
+# 📥 Clone Repository
+
+```bash
+git clone https://github.com/yashdotdev13/distributed-url-shortener.git
+
+cd distributed-url-shortener
+```
+
+---
+
+# 🔨 Build the Project
+
+Compile all modules using Maven.
+
+```bash
+mvn clean install
+```
+
+---
+
+# 🐳 Docker Images
+
+Build Docker images for every microservice.
+
+```bash
+docker build -t your-dockerhub-username/discovery-server .
+docker build -t your-dockerhub-username/api-gateway .
+docker build -t your-dockerhub-username/auth-service .
+```
+
+Push the images to Docker Hub.
+
+```bash
+docker push your-dockerhub-username/discovery-server
+
+docker push your-dockerhub-username/api-gateway
+
+docker push your-dockerhub-username/auth-service
+```
+
+---
+
+# ☸ Kubernetes Deployment
+
+Start Minikube.
+
+```bash
+minikube start
+```
+
+Verify the cluster.
+
+```bash
+kubectl get nodes
+```
+
+Deploy all Kubernetes resources.
+
+```bash
+kubectl apply -f kubernetes/
+```
+
+Verify deployments.
+
+```bash
+kubectl get deployments
+```
+
+Verify pods.
+
+```bash
+kubectl get pods
+```
+
+Verify services.
+
+```bash
+kubectl get svc
+```
+
+---
+
+# 🌐 Accessing Services
+
+| Service | Default Port |
+|----------|--------------|
+| API Gateway | 8081 |
+| Discovery Server | 8761 |
+| Auth Service | Internal |
+| PostgreSQL | Internal |
+| Redis | Internal |
+| Kafka | Internal |
+
+To access the API Gateway locally:
+
+```bash
+minikube service api-gateway-service
+```
+
+To access the Eureka Dashboard:
+
+```bash
+minikube service discovery-server-service
+```
+
+---
+
+# 📋 Current Deployment Status
+
+| Component | Status |
+|-----------|--------|
+| Discovery Server | ✅ Completed |
+| API Gateway | ✅ Completed |
+| Auth Service | ✅ Completed |
+| Docker Images | ✅ Completed |
+| Docker Hub | ✅ Completed |
+| Kubernetes Deployments | ✅ Completed |
+| Kubernetes Services | ✅ Completed |
+| ConfigMaps | ✅ Completed |
+| Secrets | ✅ Completed |
+| Minikube Deployment | ✅ Completed |
+| Eureka Service Discovery | ✅ Completed |
+| URL Service | 🚧 In Progress |
+| Redirect Service | ⏳ Planned |
+| Analytics Service | ⏳ Planned |
+
+---
+
+# 📌 Upcoming Features
+
+The following engineering features are planned for future phases of the project.
+
+- Redis URL Cache
+- Bloom Filter
+- Kafka Event Streaming
+- CQRS Analytics
+- Distributed Rate Limiting
+- Prometheus Monitoring
+- Grafana Dashboards
+- Jaeger Distributed Tracing
+- Helm Charts
+- GitHub Actions CI/CD
+- Kubernetes Horizontal Pod Autoscaler
+- Chaos Testing
+- Performance Benchmarking using k6
+
+---
+
+# 🤝 Contributing
+
+Contributions, ideas, and suggestions are welcome.
+
+1. Fork the repository.
+2. Create a new feature branch.
+3. Commit your changes.
+4. Push the branch.
+5. Open a Pull Request.
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+# ⭐ Support
+
+If you found this project useful, consider giving it a ⭐ on GitHub.
+
+It helps others discover the project and motivates further development.
